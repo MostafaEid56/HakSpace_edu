@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: hakspace-api
+    env: java
+    buildCommand: mvn package -DskipTests
+    startCommand: java -jar target/*.jar
