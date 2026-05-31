@@ -16,4 +16,4 @@ services:
       DB_NAME: hakspace
       DB_USER: postgres
       DB_PASS: password
-      JWT_SECRET: c2VjdXJlLWtleS1mb3ItaGFrc3BhY2UtMjAyNA==
+      JWT_SECRET: c2VjdXJlLWtleS1mb3ItaGFrc3BhY2UtMjAyNC1hbmQtYmV5b25kLXN1cGVyLWxvbmcta2V5LTMyLWJ5dGVz

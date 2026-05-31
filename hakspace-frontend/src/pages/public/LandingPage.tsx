@@ -1,13 +1,207 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { apiClient } from '../../api/client'
+import { useAuthStore } from '../../store/authStore'
+import { GraduationCap, ArrowRight, Star, Clock, Users, ArrowUpRight } from 'lucide-react'
+
+interface Course {
+  id: number
+  title: string
+  description: string
+  imageUrl: string
+  duration: string
+  instructorName: string
+  price: number
+  rating: number
+  studentCount: number
+}
+
+const fetchCourses = async (): Promise<Course[]> => {
+  const response = await apiClient.get('/api/courses')
+  return response.data
+}
+
 export default function LandingPage() {
   const navigate = useNavigate()
+  const { user, logout } = useAuthStore()
+
+  const { data: courses, isLoading } = useQuery<Course[]>({
+    queryKey: ['featuredCourses'],
+    queryFn: fetchCourses,
+  })
+
+  // Take first 3 courses as featured
+  const featuredCourses = courses ? courses.slice(0, 3) : []
+
   return (
-    <div className="py-20 text-center">
-      <h1 className="text-5xl font-bold mb-6">Master the Future of Tech</h1>
-      <p className="text-xl text-zinc-400 mb-8">Expert-led courses in web dev, data science, and AI.</p>
-      <button onClick={() => navigate('/courses')} className="bg-brand-600 px-8 py-4 rounded-xl font-semibold">
-        Explore Courses
-      </button>
+    <div className="min-h-screen bg-black text-white selection:bg-brand-500 selection:text-white">
+      {/* Header / Navbar */}
+      <header className="fixed top-0 inset-x-0 h-20 bg-black/60 backdrop-blur-md border-b border-zinc-900 z-50">
+        <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5">
+            <GraduationCap className="text-brand-500 w-8 h-8" />
+            <span className="font-black text-2xl tracking-tight text-white">HAK<span className="text-brand-500">SPACE</span></span>
+          </Link>
+
+          <nav className="flex items-center gap-6">
+            <Link to="/courses" className="text-sm font-semibold text-zinc-400 hover:text-white transition">
+              Courses
+            </Link>
+            
+            {user ? (
+              <>
+                {user.role === 'ADMIN' && (
+                  <Link to="/admin/dashboard" className="text-sm font-semibold text-brand-400 hover:text-brand-300 transition flex items-center gap-1">
+                    Admin Panel <ArrowUpRight size={14} />
+                  </Link>
+                )}
+                <button 
+                  onClick={() => { logout(); navigate('/'); }}
+                  className="px-4 py-2 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50 rounded-xl text-sm font-semibold transition"
+                >
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <Link 
+                to="/login"
+                className="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-semibold transition shadow-lg shadow-brand-900/20"
+              >
+                Log In
+              </Link>
+            )}
+          </nav>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="pt-40 pb-20 relative overflow-hidden">
+        {/* Ambient background glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute top-10 left-10 w-72 h-72 bg-rose-500/5 rounded-full blur-[80px] pointer-events-none"></div>
+
+        <div className="max-w-4xl mx-auto text-center px-6 relative">
+          <span className="px-3.5 py-1.5 bg-brand-500/10 text-brand-400 rounded-full text-xs font-bold uppercase tracking-widest border border-brand-500/20 inline-block mb-6 animate-pulse">
+            Welcome to the future of tech education
+          </span>
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
+            Master the Skills That <br className="hidden md:inline" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 via-rose-400 to-rose-600">
+              Define the Future
+            </span>
+          </h1>
+          <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+            Gain job-ready skills through immersive, cohort-based developer bootcamps. Mentorship, practical projects, and a global student network await you.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <button 
+              onClick={() => navigate('/courses')} 
+              className="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 active:scale-95 text-white px-8 py-4 rounded-xl font-bold transition shadow-lg shadow-brand-900/30 flex items-center justify-center gap-2 group text-base"
+            >
+              Explore Course Catalog <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Showcase Banner */}
+      <section className="py-12 border-y border-zinc-900 bg-zinc-950/20">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div>
+            <h3 className="text-3xl md:text-4xl font-extrabold text-white">98%</h3>
+            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">Employment Rate</p>
+          </div>
+          <div>
+            <h3 className="text-3xl md:text-4xl font-extrabold text-white">15k+</h3>
+            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">Alumni Worldwide</p>
+          </div>
+          <div>
+            <h3 className="text-3xl md:text-4xl font-extrabold text-white">4.9/5</h3>
+            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">Student Satisfaction</p>
+          </div>
+          <div>
+            <h3 className="text-3xl md:text-4xl font-extrabold text-white">50+</h3>
+            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">Hiring Partners</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Courses Section */}
+      <section className="py-24 px-6 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Featured Cohorts</h2>
+            <p className="text-zinc-400">Join our upcoming interactive programs led by industry leaders.</p>
+          </div>
+          <button 
+            onClick={() => navigate('/courses')} 
+            className="mt-4 md:mt-0 text-brand-400 hover:text-brand-300 font-semibold flex items-center gap-1.5 transition text-sm"
+          >
+            Browse all courses <ArrowRight size={16} />
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="grid md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-2xl h-80 animate-pulse"></div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-8">
+            {featuredCourses.map((course) => (
+              <div 
+                key={course.id}
+                onClick={() => navigate(`/courses/${course.id}`)}
+                className="group bg-zinc-900 border border-zinc-850 hover:border-brand-500/40 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
+              >
+                <div className="relative h-44 overflow-hidden bg-zinc-850">
+                  <img 
+                    src={course.imageUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97'} 
+                    alt={course.title}
+                    className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent"></div>
+                </div>
+
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-brand-500 transition line-clamp-1">
+                      {course.title}
+                    </h3>
+                    <p className="text-zinc-400 text-xs mb-4 line-clamp-2 leading-relaxed">
+                      {course.description}
+                    </p>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-4 border-t border-zinc-800">
+                    <span className="text-lg font-black text-white">${course.price}</span>
+                    <span className="text-xs text-zinc-400 flex items-center gap-1">
+                      <Clock size={12} className="text-brand-500" /> {course.duration}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-zinc-900 bg-zinc-950/20 py-12 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="text-brand-500 w-6 h-6" />
+            <span className="font-bold text-sm tracking-tight text-white">HAK<span className="text-brand-500">SPACE</span></span>
+            <span className="text-zinc-600 text-xs ml-4">© 2026 HakSpace. All rights reserved.</span>
+          </div>
+
+          <div className="flex items-center gap-6 text-zinc-500 text-xs">
+            <Link to="/courses" className="hover:text-white transition">Course Catalog</Link>
+            <Link to="/login" className="hover:text-white transition">Admin Portal</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
