@@ -16,6 +16,7 @@ interface Course {
   price: number
   rating: number
   studentCount: number
+  groups: { id: number; groupName: string; isAvailable: boolean }[]
 }
 
 const fetchCourses = async (): Promise<Course[]> => {

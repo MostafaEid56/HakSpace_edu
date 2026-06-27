@@ -2,7 +2,22 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../../api/client'
 import { toast } from 'react-toastify'
-import { Plus, Pencil, Trash2, X, BookOpen, Clock, User, DollarSign, Star, GraduationCap } from 'lucide-react'
+import {
+  Plus, Pencil, Trash2, X, BookOpen, Clock, User,
+  Star, GraduationCap, Users, Calendar, ChevronDown, ChevronUp
+} from 'lucide-react'
+
+// ── Types ──────────────────────────────────────────────────────────────────────
+
+interface CourseGroup {
+  id?: number
+  groupName: string
+  maxStudents: number
+  currentStudents: number
+  remainingSeats: number
+  schedule: string
+  isAvailable: boolean
+}
 
 interface Course {
   id: number
@@ -14,21 +29,36 @@ interface Course {
   price: number
   rating: number
   studentCount: number
+  groups: CourseGroup[]
 }
 
-const fetchCourses = async (): Promise<Course[]> => {
-  const response = await apiClient.get('/api/admin/courses')
-  return response.data
+interface GroupDraft {
+  id?: number           // undefined = new group
+  groupName: string
+  maxStudents: number
+  schedule: string
 }
+
+const EMPTY_GROUP = (): GroupDraft => ({ groupName: '', maxStudents: 20, schedule: '' })
+
+// ── API helpers ────────────────────────────────────────────────────────────────
+
+const fetchCourses = async (): Promise<Course[]> => {
+  const res = await apiClient.get('/api/admin/courses')
+  return res.data
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────────
 
 export default function AdminCoursesPage() {
   const queryClient = useQueryClient()
-  
-  // State for Create/Edit Modal
+
+  // Modal state
   const [isOpen, setIsOpen] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
-  
-  // Form Fields State
+  const [expandedGroupIdx, setExpandedGroupIdx] = useState<number | null>(null)
+
+  // Course fields
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [imageUrl, setImageUrl] = useState('')
@@ -38,79 +68,65 @@ export default function AdminCoursesPage() {
   const [rating, setRating] = useState<number>(0)
   const [studentCount, setStudentCount] = useState<number>(0)
 
-  // Fetch Courses Query
+  // Groups draft list
+  const [groups, setGroups] = useState<GroupDraft[]>([])
+
+  // ── Queries & Mutations ────────────────────────────────────────────────────
+
   const { data: courses, isLoading, error } = useQuery<Course[]>({
     queryKey: ['adminCourses'],
     queryFn: fetchCourses,
   })
 
-  // Add Mutation
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ['adminCourses'] })
+    queryClient.invalidateQueries({ queryKey: ['courses'] })
+    queryClient.invalidateQueries({ queryKey: ['featuredCourses'] })
+  }
+
   const addMutation = useMutation({
-    mutationFn: async (newCourse: Omit<Course, 'id'>) => {
-      const response = await apiClient.post('/api/admin/courses', newCourse)
-      return response.data
+    mutationFn: async (payload: object) => {
+      const res = await apiClient.post('/api/admin/courses', payload)
+      return res.data
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['adminCourses'] })
-      queryClient.invalidateQueries({ queryKey: ['courses'] })
-      queryClient.invalidateQueries({ queryKey: ['featuredCourses'] })
-      toast.success('Course created successfully!')
-      closeModal()
-    },
-    onError: (err: any) => {
-      console.error(err)
-      toast.error('Failed to create course.')
-    }
+    onSuccess: () => { invalidateAll(); toast.success('Course created successfully!'); closeModal() },
+    onError: (err: any) => toast.error(err.response?.data?.message || 'Failed to create course.'),
   })
 
-  // Update Mutation
   const updateMutation = useMutation({
-    mutationFn: async (updatedCourse: Course) => {
-      const response = await apiClient.put(`/api/admin/courses/${updatedCourse.id}`, updatedCourse)
-      return response.data
+    mutationFn: async ({ id, payload }: { id: number; payload: object }) => {
+      const res = await apiClient.put(`/api/admin/courses/${id}`, payload)
+      return res.data
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['adminCourses'] })
-      queryClient.invalidateQueries({ queryKey: ['courses'] })
-      queryClient.invalidateQueries({ queryKey: ['featuredCourses'] })
-      toast.success('Course updated successfully!')
-      closeModal()
-    },
-    onError: (err: any) => {
-      console.error(err)
-      toast.error('Failed to update course.')
-    }
+    onSuccess: () => { invalidateAll(); toast.success('Course updated successfully!'); closeModal() },
+    onError: (err: any) => toast.error(err.response?.data?.message || 'Failed to update course.'),
   })
 
-  // Delete Mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const response = await apiClient.delete(`/api/admin/courses/${id}`)
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['adminCourses'] })
-      queryClient.invalidateQueries({ queryKey: ['courses'] })
-      queryClient.invalidateQueries({ queryKey: ['featuredCourses'] })
-      toast.success('Course and all its leads removed successfully!')
-    },
-    onError: (err: any) => {
-      console.error(err)
-      toast.error('Failed to delete course.')
-    }
+    mutationFn: async (id: number) => apiClient.delete(`/api/admin/courses/${id}`),
+    onSuccess: () => { invalidateAll(); toast.success('Course deleted successfully!') },
+    onError: () => toast.error('Failed to delete course.'),
   })
+
+  // ── Modal helpers ──────────────────────────────────────────────────────────
 
   const openModal = (course: Course | null = null) => {
     if (course) {
       setSelectedCourse(course)
       setTitle(course.title)
       setDescription(course.description)
-      setImageUrl(course.imageUrl)
+      setImageUrl(course.imageUrl || '')
       setDuration(course.duration)
       setInstructorName(course.instructorName)
       setPrice(course.price)
       setRating(course.rating)
       setStudentCount(course.studentCount)
+      setGroups(course.groups.map(g => ({
+        id: g.id,
+        groupName: g.groupName,
+        maxStudents: g.maxStudents,
+        schedule: g.schedule,
+      })))
     } else {
       setSelectedCourse(null)
       setTitle('')
@@ -120,55 +136,79 @@ export default function AdminCoursesPage() {
       setInstructorName('')
       setPrice(199)
       setRating(4.8)
-      setStudentCount(120)
+      setStudentCount(0)
+      setGroups([])
     }
+    setExpandedGroupIdx(null)
     setIsOpen(true)
   }
 
-  const closeModal = () => {
-    setIsOpen(false)
-    setSelectedCourse(null)
+  const closeModal = () => { setIsOpen(false); setSelectedCourse(null); setGroups([]) }
+
+  // ── Group draft helpers ────────────────────────────────────────────────────
+
+  const addGroup = () => {
+    const newIdx = groups.length
+    setGroups(prev => [...prev, EMPTY_GROUP()])
+    setExpandedGroupIdx(newIdx)
   }
+
+  const removeGroup = (idx: number) => {
+    setGroups(prev => prev.filter((_, i) => i !== idx))
+    setExpandedGroupIdx(null)
+  }
+
+  const updateGroup = (idx: number, field: keyof GroupDraft, value: string | number) => {
+    setGroups(prev => prev.map((g, i) => i === idx ? { ...g, [field]: value } : g))
+  }
+
+  // ── Form submit ────────────────────────────────────────────────────────────
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!title || !description || !instructorName || !duration) {
-      toast.error('Please fill in all required fields.')
+      toast.error('Please fill in all required course fields.')
       return
+    }
+    for (const g of groups) {
+      if (!g.groupName.trim()) { toast.error('All groups must have a name.'); return }
+      if (!g.schedule.trim()) { toast.error('All groups must have a schedule.'); return }
+      if (g.maxStudents < 1) { toast.error('Max students must be at least 1.'); return }
     }
 
     const payload = {
-      title,
-      description,
-      imageUrl,
-      duration,
-      instructorName,
-      price: Number(price),
-      rating: Number(rating),
-      studentCount: Number(studentCount),
+      title, description, imageUrl, duration,
+      instructorName, price: Number(price),
+      rating: Number(rating), studentCount: Number(studentCount),
+      groups,
     }
 
     if (selectedCourse) {
-      updateMutation.mutate({ ...payload, id: selectedCourse.id })
+      updateMutation.mutate({ id: selectedCourse.id, payload })
     } else {
       addMutation.mutate(payload)
     }
   }
 
-  const handleDelete = (id: number, title: string) => {
-    if (confirm(`Are you sure you want to delete "${title}"? This will permanently delete the course and all associated enrollment leads.`)) {
+  const handleDelete = (id: number, t: string) => {
+    if (confirm(`Delete "${t}"? This will also remove all enrollment leads.`)) {
       deleteMutation.mutate(id)
     }
   }
 
+  const isPending = addMutation.isPending || updateMutation.isPending
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
   return (
     <div className="space-y-8">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Courses Management</h1>
-          <p className="text-zinc-500 text-sm mt-1">Add, update, or remove courses in your academic directory.</p>
+          <p className="text-zinc-500 text-sm mt-1">Add, update, or remove courses and their group schedules.</p>
         </div>
-        <button 
+        <button
           onClick={() => openModal()}
           className="flex items-center justify-center gap-2 px-5 py-3 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white rounded-xl text-sm font-bold transition shadow-lg shadow-brand-900/20"
         >
@@ -176,43 +216,43 @@ export default function AdminCoursesPage() {
         </button>
       </div>
 
+      {/* Loading / Error / Empty states */}
       {isLoading && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-12 text-center animate-pulse">
           <p className="text-zinc-400">Loading course directory...</p>
         </div>
       )}
-
       {error && (
         <div className="bg-red-950/20 border border-red-900/50 rounded-2xl p-8 text-center max-w-lg">
           <h3 className="text-lg font-bold text-red-400">Error loading courses</h3>
           <p className="text-zinc-400 text-sm mt-1">Please verify administrative authentication and connection.</p>
         </div>
       )}
-
       {courses && courses.length === 0 && (
         <div className="bg-zinc-900/50 border border-zinc-850 rounded-2xl p-12 text-center">
           <BookOpen className="mx-auto text-zinc-600 mb-3" size={36} />
           <h3 className="text-lg font-bold text-zinc-300">No courses listed</h3>
-          <p className="text-zinc-500 text-sm mt-1">Click the "Add New Course" button to create your first educational offering.</p>
+          <p className="text-zinc-500 text-sm mt-1">Click "Add New Course" to create your first offering.</p>
         </div>
       )}
 
+      {/* Courses Table */}
       {courses && courses.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-zinc-800 bg-zinc-950/50 text-zinc-400 text-xs font-bold uppercase tracking-wider">
-                  <th className="py-4 px-6">Course details</th>
+                  <th className="py-4 px-6">Course Details</th>
                   <th className="py-4 px-6">Instructor</th>
                   <th className="py-4 px-6">Price</th>
-                  <th className="py-4 px-6">Metrics</th>
+                  <th className="py-4 px-6">Groups</th>
                   <th className="py-4 px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800 text-sm">
                 {courses.map((course) => (
-                  <tr key={course.id} className="hover:bg-zinc-900/40 transition">
+                  <tr key={course.id} className="hover:bg-zinc-900/40 transition align-top">
                     {/* Title & Image */}
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-4">
@@ -235,34 +275,45 @@ export default function AdminCoursesPage() {
                       </span>
                     </td>
 
-                    {/* Price */}
-                    <td className="py-4 px-6 font-bold text-white text-base">
-                      ${course.price.toLocaleString()}
+                    {/* Price & Rating */}
+                    <td className="py-4 px-6">
+                      <p className="font-bold text-white text-base">${course.price.toLocaleString()}</p>
+                      <span className="flex items-center gap-1 text-[10px] text-zinc-400 mt-0.5">
+                        <Star size={10} className="text-yellow-400 fill-yellow-400" /> {course.rating.toFixed(1)}
+                      </span>
                     </td>
 
-                    {/* Metrics */}
-                    <td className="py-4 px-6 text-xs text-zinc-400 space-y-1">
-                      <div className="flex items-center gap-1.5">
-                        <Star size={12} className="text-yellow-400 fill-yellow-400" />
-                        <span>Rating: <strong className="text-white">{course.rating.toFixed(1)}</strong></span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <GraduationCap size={12} className="text-brand-500" />
-                        <span>Students: <strong className="text-white">{course.studentCount}</strong></span>
-                      </div>
+                    {/* Groups Summary */}
+                    <td className="py-4 px-6 min-w-[220px]">
+                      {!course.groups || course.groups.length === 0 ? (
+                        <span className="text-zinc-600 text-xs italic">No groups</span>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {course.groups.map(g => (
+                            <div key={g.id} className="flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${g.isAvailable ? 'bg-green-500' : 'bg-red-500'}`} />
+                              <span className="text-xs text-zinc-300 font-semibold">{g.groupName}</span>
+                              <span className="text-[10px] text-zinc-500">{g.currentStudents}/{g.maxStudents}</span>
+                              {!g.isAvailable && (
+                                <span className="text-[10px] bg-red-900/30 text-red-400 px-1.5 py-0.5 rounded-full border border-red-900/30">Full</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </td>
 
                     {/* Actions */}
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button 
+                        <button
                           onClick={() => openModal(course)}
                           className="p-2 hover:bg-zinc-800 hover:text-brand-400 rounded-lg border border-transparent hover:border-zinc-700 transition"
                           title="Edit Course"
                         >
                           <Pencil size={16} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDelete(course.id, course.title)}
                           className="p-2 hover:bg-red-950/20 hover:text-red-400 rounded-lg border border-transparent hover:border-red-900/20 transition"
                           title="Delete Course"
@@ -279,12 +330,12 @@ export default function AdminCoursesPage() {
         </div>
       )}
 
-      {/* Course Modal */}
+      {/* ── Create / Edit Modal ─────────────────────────────────────────────── */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl flex flex-col relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
             {/* Modal Header */}
-            <div className="h-16 flex items-center justify-between px-6 border-b border-zinc-850">
+            <div className="h-16 flex items-center justify-between px-6 border-b border-zinc-800 flex-shrink-0">
               <h3 className="font-extrabold text-lg text-white">
                 {selectedCourse ? 'Edit Course Cohort' : 'Create New Course'}
               </h3>
@@ -293,125 +344,194 @@ export default function AdminCoursesPage() {
               </button>
             </div>
 
-            {/* Modal Body Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1">Course Title *</label>
-                  <input 
-                    type="text" 
-                    required
-                    placeholder="e.g. Full Stack Web Development BootCamp" 
-                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                  />
+            {/* Modal Body */}
+            <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[80vh]">
+              <div className="p-6 space-y-4">
+
+                {/* ── Course Info Section ─────────────────────────────────── */}
+                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Course Information</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Course Title *</label>
+                    <input
+                      type="text" required
+                      placeholder="e.g. Full Stack Web Development BootCamp"
+                      className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      value={title} onChange={e => setTitle(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Instructor Name *</label>
+                    <input
+                      type="text" required placeholder="e.g. Dr. Adam Smith"
+                      className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      value={instructorName} onChange={e => setInstructorName(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Duration *</label>
+                    <input
+                      type="text" required placeholder="e.g. 12 Weeks"
+                      className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      value={duration} onChange={e => setDuration(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Tuition Fees ($) *</label>
+                    <input
+                      type="number" required min="0" placeholder="299"
+                      className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      value={price} onChange={e => setPrice(Number(e.target.value))}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Image URL</label>
+                    <input
+                      type="url" placeholder="https://unsplash..."
+                      className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      value={imageUrl} onChange={e => setImageUrl(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Initial Rating</label>
+                    <input
+                      type="number" step="0.1" min="0" max="5"
+                      className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      value={rating} onChange={e => setRating(Number(e.target.value))}
+                    />
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Description *</label>
+                    <textarea
+                      rows={3} required placeholder="Explain what students will learn..."
+                      className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
+                      value={description} onChange={e => setDescription(e.target.value)}
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1">Instructor Name *</label>
-                  <input 
-                    type="text" 
-                    required
-                    placeholder="e.g. Dr. Adam Smith" 
-                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                    value={instructorName}
-                    onChange={(e) => setInstructorName(e.target.value)}
-                  />
-                </div>
+                {/* ── Groups Section ──────────────────────────────────────── */}
+                <div className="border-t border-zinc-800 pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Course Groups / Batches</p>
+                      <p className="text-xs text-zinc-600 mt-0.5">Define separate schedules and capacities for each group.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addGroup}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-brand-600 border border-zinc-700 hover:border-brand-500 text-zinc-300 hover:text-white rounded-lg text-xs font-semibold transition"
+                    >
+                      <Plus size={13} /> Add Group
+                    </button>
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1">Duration *</label>
-                  <input 
-                    type="text" 
-                    required
-                    placeholder="e.g. 12 Weeks" 
-                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                  />
-                </div>
+                  {groups.length === 0 && (
+                    <div className="text-center py-6 border border-dashed border-zinc-800 rounded-xl">
+                      <Users size={24} className="mx-auto text-zinc-700 mb-2" />
+                      <p className="text-zinc-600 text-xs">No groups yet. Click "Add Group" to create the first batch.</p>
+                    </div>
+                  )}
 
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1">Tuition Fees ($) *</label>
-                  <input 
-                    type="number" 
-                    required
-                    min="0"
-                    placeholder="299" 
-                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                    value={price}
-                    onChange={(e) => setPrice(Number(e.target.value))}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    {groups.map((g, idx) => (
+                      <div key={idx} className="border border-zinc-800 rounded-xl overflow-hidden">
+                        {/* Group Header — click to expand/collapse */}
+                        <div
+                          className="flex items-center justify-between px-4 py-3 bg-zinc-800/60 cursor-pointer hover:bg-zinc-800 transition"
+                          onClick={() => setExpandedGroupIdx(expandedGroupIdx === idx ? null : idx)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-brand-600/20 text-brand-400 text-[10px] font-black flex items-center justify-center">
+                              {idx + 1}
+                            </span>
+                            <span className="text-sm font-semibold text-white">
+                              {g.groupName || <span className="text-zinc-500 italic font-normal">Unnamed Group</span>}
+                            </span>
+                            {g.schedule && (
+                              <span className="hidden sm:flex items-center gap-1 text-[10px] text-zinc-500">
+                                <Calendar size={10} /> {g.schedule}
+                              </span>
+                            )}
+                            <span className="text-[10px] text-zinc-600 ml-1">· Max: {g.maxStudents}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={e => { e.stopPropagation(); removeGroup(idx) }}
+                              className="p-1 text-zinc-600 hover:text-red-400 transition rounded"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                            {expandedGroupIdx === idx
+                              ? <ChevronUp size={14} className="text-zinc-500" />
+                              : <ChevronDown size={14} className="text-zinc-500" />}
+                          </div>
+                        </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1">Image URL</label>
-                  <input 
-                    type="url" 
-                    placeholder="https://unsplash..." 
-                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1">Initial Rating</label>
-                  <input 
-                    type="number" 
-                    step="0.1" 
-                    min="0" 
-                    max="5"
-                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                    value={rating}
-                    onChange={(e) => setRating(Number(e.target.value))}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1">Student Count</label>
-                  <input 
-                    type="number" 
-                    min="0"
-                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                    value={studentCount}
-                    onChange={(e) => setStudentCount(Number(e.target.value))}
-                  />
-                </div>
-
-                <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1">Syllabus Overview / Description *</label>
-                  <textarea 
-                    rows={4}
-                    required
-                    placeholder="Explain what students will learn, program modules..." 
-                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
+                        {/* Group Fields — expanded */}
+                        {expandedGroupIdx === idx && (
+                          <div className="p-4 grid grid-cols-2 gap-3 bg-zinc-900/40">
+                            <div>
+                              <label className="block text-xs font-semibold text-zinc-400 mb-1">Group Name *</label>
+                              <input
+                                type="text"
+                                placeholder="e.g. Group A"
+                                className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                value={g.groupName}
+                                onChange={e => updateGroup(idx, 'groupName', e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-zinc-400 mb-1">Max Students *</label>
+                              <input
+                                type="number" min="1"
+                                className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                value={g.maxStudents}
+                                onChange={e => updateGroup(idx, 'maxStudents', Number(e.target.value))}
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <label className="block text-xs font-semibold text-zinc-400 mb-1">Schedule *</label>
+                              <input
+                                type="text"
+                                placeholder="e.g. Sunday & Tuesday 6:00 PM"
+                                className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                value={g.schedule}
+                                onChange={e => updateGroup(idx, 'schedule', e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Modal Footer Controls */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-zinc-850 mt-6">
-                <button 
-                  type="button" 
-                  onClick={closeModal} 
+              {/* Modal Footer */}
+              <div className="flex justify-end gap-3 px-6 py-4 border-t border-zinc-800 bg-zinc-950/30">
+                <button
+                  type="button" onClick={closeModal}
                   className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-750 text-white font-semibold rounded-xl text-sm transition"
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
-                  className="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm transition flex items-center justify-center gap-1.5"
-                  disabled={addMutation.isPending || updateMutation.isPending}
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm transition flex items-center justify-center gap-1.5 min-w-[120px]"
+                  disabled={isPending}
                 >
-                  {(addMutation.isPending || updateMutation.isPending) ? (
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  ) : (
-                    'Save Program'
-                  )}
+                  {isPending
+                    ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    : 'Save Program'
+                  }
                 </button>
               </div>
             </form>

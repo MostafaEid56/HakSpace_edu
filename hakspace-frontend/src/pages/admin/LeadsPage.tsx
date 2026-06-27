@@ -9,6 +9,12 @@ interface Course {
   title: string
 }
 
+interface CourseGroup {
+  id: number
+  groupName: string
+  schedule: string
+}
+
 interface Enrollment {
   id: number
   fullName: string
@@ -20,6 +26,7 @@ interface Enrollment {
   notes: string
   status: 'NEW' | 'CONTACTED' | 'ENROLLED' | 'CLOSED'
   course: Course
+  group?: CourseGroup
   createdAt: string
 }
 
@@ -144,11 +151,19 @@ export default function LeadsPage() {
                       </div>
                     </td>
 
-                    {/* Course */}
+                    {/* Course & Group */}
                     <td className="py-4 px-6">
                       <span className="font-semibold text-zinc-200">
                         {lead.course ? lead.course.title : 'N/A'}
                       </span>
+                      {lead.group && (
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className="text-[10px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-full font-semibold">
+                            {lead.group.groupName}
+                          </span>
+                          <span className="text-[10px] text-zinc-500">{lead.group.schedule}</span>
+                        </div>
+                      )}
                       <p className="text-[10px] text-zinc-500 mt-1">
                         Registered: {new Date(lead.createdAt).toLocaleDateString()}
                       </p>
