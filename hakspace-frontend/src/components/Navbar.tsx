@@ -33,6 +33,13 @@ export default function Navbar() {
             {t('nav.courses')}
           </Link>
 
+          <Link
+            to="/verify-certificate"
+            className="text-sm font-semibold text-zinc-400 hover:text-white transition"
+          >
+            {t('certificate.verify_nav')}
+          </Link>
+
           {user ? (
             <>
               {user.role === 'ADMIN' && (

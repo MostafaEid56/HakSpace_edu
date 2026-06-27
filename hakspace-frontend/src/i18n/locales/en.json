@@ -246,5 +246,33 @@
     "full": "Full",
     "available": "Available",
     "lang_switch": "العربية"
+  },
+  "certificate": {
+    "verify_nav": "Verify Certificate",
+    "title": "Certificate Verification",
+    "subtitle": "Enter a certificate ID to verify its validity and view the details.",
+    "input_placeholder": "e.g. HSC-2026-000001",
+    "verify_button": "Verify",
+    "not_found": "Certificate not found or invalid.",
+    "cert_title": "Certificate of Completion",
+    "cert_presented": "This certificate is proudly presented to",
+    "cert_body": "for successfully completing the specialized training course",
+    "cert_id": "Certificate ID",
+    "issue_date": "Issue Date",
+    "academy_signature": "HakSpace Academy Signature",
+    "verified_badge": "Verified Secure",
+    "completed_status": "Completed",
+    "in_progress_status": "In Progress",
+    "enrolled_students": "Enrolled Students",
+    "mark_completed": "Mark Completed",
+    "mark_in_progress": "Mark In Progress",
+    "view_cert": "View Certificate",
+    "actions": "Actions",
+    "student_name": "Student Name",
+    "email": "Email",
+    "group": "Group",
+    "enrollment_date": "Enrollment Date",
+    "completion_status": "Completion Status",
+    "no_students": "No students currently enrolled in this course."
   }
 }

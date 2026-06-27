@@ -9,6 +9,8 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Navbar from '../../components/Navbar'
+import { useAuthStore } from '../../store/authStore'
+import AdminCourseStudentsSection from '../../components/AdminCourseStudentsSection'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -139,6 +141,7 @@ export default function CourseDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
+  const { user } = useAuthStore()
   const [success, setSuccess] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState<number | undefined>(undefined)
 
@@ -310,6 +313,11 @@ export default function CourseDetailsPage() {
                 ))}
               </ul>
             </div>
+
+            {/* Enrolled Students (Admin only) */}
+            {user?.role === 'ADMIN' && (
+              <AdminCourseStudentsSection courseId={Number(id)} />
+            )}
           </div>
 
           {/* ── Right: Enrollment Sidebar ───────────────────────────────── */}

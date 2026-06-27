@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../../api/client'
 import { toast } from 'react-toastify'
 import {
   Plus, Pencil, Trash2, X, BookOpen, Clock, User,
-  Star, GraduationCap, Users, Calendar, ChevronDown, ChevronUp
+  Star, GraduationCap, Users, Calendar, ChevronDown, ChevronUp, Eye
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -52,6 +53,7 @@ const fetchCourses = async (): Promise<Course[]> => {
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 export default function AdminCoursesPage() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
@@ -310,6 +312,13 @@ export default function AdminCoursesPage() {
                     {/* Actions */}
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => navigate(`/courses/${course.id}`)}
+                          className="p-2 hover:bg-zinc-800 hover:text-green-400 rounded-lg border border-transparent hover:border-zinc-700 transition"
+                          title="View Details & Students"
+                        >
+                          <Eye size={16} />
+                        </button>
                         <button
                           onClick={() => openModal(course)}
                           className="p-2 hover:bg-zinc-800 hover:text-brand-400 rounded-lg border border-transparent hover:border-zinc-700 transition"

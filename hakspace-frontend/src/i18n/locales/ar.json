@@ -246,5 +246,33 @@
     "full": "مكتمل",
     "available": "متاح",
     "lang_switch": "English"
+  },
+  "certificate": {
+    "verify_nav": "التحقق من الشهادة",
+    "title": "التحقق من صحة الشهادة",
+    "subtitle": "أدخل رقم الشهادة للتحقق من صلاحيتها وعرض التفاصيل الخاصة بها.",
+    "input_placeholder": "مثال: HSC-2026-000001",
+    "verify_button": "تحقق",
+    "not_found": "الشهادة غير موجودة أو غير صالحة.",
+    "cert_title": "شهادة إتمام دورة تدريبية",
+    "cert_presented": "تُمنح هذه الشهادة بكل فخر واعتزاز لـ",
+    "cert_body": "لاجتيازه بنجاح الدورة التدريبية المتخصصة في",
+    "cert_id": "رقم الشهادة",
+    "issue_date": "تاريخ الإصدار",
+    "academy_signature": "توقيع أكاديمية HakSpace",
+    "verified_badge": "تم التحقق - آمن",
+    "completed_status": "مكتمل",
+    "in_progress_status": "قيد الدراسة",
+    "enrolled_students": "الطلاب المسجلون",
+    "mark_completed": "تعيين كمكتمل",
+    "mark_in_progress": "تعيين كقيد الدراسة",
+    "view_cert": "عرض الشهادة",
+    "actions": "الإجراءات",
+    "student_name": "اسم الطالب",
+    "email": "البريد الإلكتروني",
+    "group": "المجموعة",
+    "enrollment_date": "تاريخ التسجيل",
+    "completion_status": "حالة الإتمام",
+    "no_students": "لا يوجد طلاب مسجلون في هذه الدورة حالياً."
   }
 }

@@ -6,6 +6,7 @@ import LoginPage from './pages/public/LoginPage'
 import DashboardPage from './pages/admin/DashboardPage'
 import LeadsPage from './pages/admin/LeadsPage'
 import AdminCoursesPage from './pages/admin/AdminCoursesPage'
+import VerifyCertificatePage from './pages/public/VerifyCertificatePage'
 import WhatsAppButton from './components/WhatsAppButton'
 import AdminLayout from './components/AdminLayout'
 
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetailsPage />} />
+        <Route path="/verify-certificate" element={<VerifyCertificatePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/admin/dashboard" element={<AdminLayout><DashboardPage /></AdminLayout>} />
         <Route path="/admin/courses" element={<AdminLayout><AdminCoursesPage /></AdminLayout>} />

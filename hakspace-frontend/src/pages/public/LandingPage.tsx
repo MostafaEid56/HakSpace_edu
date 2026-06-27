@@ -68,6 +68,12 @@ export default function LandingPage() {
             >
               {t('landing.explore_catalog')} <ArrowRight size={18} className={`transition-transform ${i18n.language === 'ar' ? 'group-hover:-translate-x-1 rotate-180' : 'group-hover:translate-x-1'}`} />
             </button>
+            <button 
+              onClick={() => navigate('/verify-certificate')} 
+              className="w-full sm:w-auto bg-zinc-800 hover:bg-zinc-700 active:scale-95 text-white px-8 py-4 rounded-xl font-bold transition flex items-center justify-center gap-2 group text-base border border-zinc-700"
+            >
+              {t('certificate.verify_nav')}
+            </button>
           </div>
         </div>
       </section>
