@@ -1,93 +1,33 @@
 package com.hakspace.controller;
 
 import com.hakspace.dto.CourseDetailResponse;
-import com.hakspace.dto.EnrollmentRequest;
-import com.hakspace.model.Course;
-import com.hakspace.model.CourseGroup;
-import com.hakspace.model.Enrollment;
-import com.hakspace.repository.CourseGroupRepository;
-import com.hakspace.repository.CourseRepository;
-import com.hakspace.repository.EnrollmentRepository;
-import jakarta.validation.Valid;
+import com.hakspace.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
 public class PublicCourseController {
 
-    private final CourseRepository courseRepo;
-    private final CourseGroupRepository groupRepo;
-    private final EnrollmentRepository enrollmentRepo;
+    private final CourseService courseService;
 
-    /** List all courses (lightweight — no groups embedded for list view). */
     @GetMapping
     public ResponseEntity<List<CourseDetailResponse>> getAll() {
-        return ResponseEntity.ok(
-                courseRepo.findAll().stream()
-                        .map(CourseDetailResponse::from)
-                        .collect(Collectors.toList())
-        );
+        return ResponseEntity.ok(courseService.getAll());
     }
 
-    /** Get a single course with full group availability details. */
     @GetMapping("/{id}")
     public ResponseEntity<CourseDetailResponse> getById(@PathVariable Long id) {
-        Course course = courseRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("course.not.found"));
-        return ResponseEntity.ok(CourseDetailResponse.from(course));
+        return ResponseEntity.ok(courseService.getById(id));
     }
 
-    /**
-     * Submit an enrollment request.
-     * <p>
-     * Rules:
-     * <ul>
-     *   <li>Does NOT increment student count — that only happens on admin approval.</li>
-     *   <li>Validates that the selected group (if any) is not full before accepting the request.</li>
-     * </ul>
-     */
     @PostMapping("/enroll")
-    public ResponseEntity<?> enroll(@Valid @RequestBody EnrollmentRequest req) {
-        // Validate course exists
-        Course course = courseRepo.findById(req.getCourseId())
-                .orElseThrow(() -> new RuntimeException("course.not.found"));
-
-        // Validate group if provided
-        CourseGroup group = null;
-        if (req.getGroupId() != null) {
-            group = groupRepo.findById(req.getGroupId())
-                    .orElseThrow(() -> new RuntimeException("course.group.not.found"));
-
-            // Ensure group belongs to the same course
-            if (!group.getCourse().getId().equals(course.getId())) {
-                throw new RuntimeException("course.group.mismatch");
-            }
-
-            // Prevent booking into a full group
-            if (!group.getIsAvailable() || group.getCurrentStudents() >= group.getMaxStudents()) {
-                throw new RuntimeException("course.group.full");
-            }
-        }
-
-        // Build and save the enrollment (status stays NEW — no seat count change yet)
-        Enrollment enrollment = new Enrollment();
-        enrollment.setFullName(req.getFullName());
-        enrollment.setPhone(req.getPhone());
-        enrollment.setEmail(req.getEmail());
-        enrollment.setCity(req.getCity());
-        enrollment.setContactMethod(req.getContactMethod());
-        enrollment.setContactTime(req.getContactTime());
-        enrollment.setNotes(req.getNotes());
-        enrollment.setCourse(course);
-        enrollment.setGroup(group);
-        enrollment.setStatus(Enrollment.LeadStatus.NEW);
-
-        return ResponseEntity.ok(enrollmentRepo.save(enrollment));
+    public ResponseEntity<?> enroll(@jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody
+                                    com.hakspace.dto.EnrollmentRequest req) {
+        return ResponseEntity.ok(courseService.enroll(req));
     }
 }
