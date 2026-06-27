@@ -1,6 +1,7 @@
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { LayoutDashboard, Users, LogOut, GraduationCap, BookOpen } from 'lucide-react'
+import { LayoutDashboard, Users, LogOut, BookOpen } from 'lucide-react'
+import logoImg from '../assets/Logo.jpg'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -34,9 +35,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div>
           {/* Logo / Header */}
           <div className="h-20 flex items-center gap-2.5 px-6 border-b border-zinc-900">
-            <GraduationCap className="text-brand-500 w-8 h-8" />
+            <img src={logoImg} alt="HakSpace" className="h-10 w-auto object-contain rounded-lg" />
             <div>
-              <span className="font-black text-xl tracking-tight text-white">HAK<span className="text-brand-500">SPACE</span></span>
               <span className="block text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Admin Hub</span>
             </div>
           </div>

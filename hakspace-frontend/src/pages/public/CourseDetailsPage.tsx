@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { apiClient } from '../../api/client'
 import { toast } from 'react-toastify'
 import { Star, Clock, BookOpen, User, Check, ArrowLeft, Send, Sparkles } from 'lucide-react'
+import Navbar from '../../components/Navbar'
 
 interface Course {
   id: number
@@ -111,8 +112,9 @@ export default function CourseDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-12 md:py-20">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-black text-white">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-16">
         {/* Back navigation */}
         <button 
           onClick={() => navigate('/courses')} 
@@ -177,7 +179,7 @@ export default function CourseDetailsPage() {
           </div>
 
           {/* Sidebar Form & Price (Right 1 col) */}
-          <div className="space-y-6 md:sticky md:top-8">
+          <div className="space-y-6 md:sticky md:top-24">
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
               {/* Highlight background element */}
               <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl"></div>
@@ -219,7 +221,7 @@ export default function CourseDetailsPage() {
                       type="text" 
                       required
                       placeholder="John Doe" 
-                      className="w-full px-3 py-2 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                     />
@@ -232,7 +234,7 @@ export default function CourseDetailsPage() {
                         type="tel" 
                         required
                         placeholder="+1 555-0199" 
-                        className="w-full px-3 py-2 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500"
+                        className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                       />
@@ -243,7 +245,7 @@ export default function CourseDetailsPage() {
                         type="text" 
                         required
                         placeholder="New York" 
-                        className="w-full px-3 py-2 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500"
+                        className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                       />
@@ -256,7 +258,7 @@ export default function CourseDetailsPage() {
                       type="email" 
                       required
                       placeholder="john@example.com" 
-                      className="w-full px-3 py-2 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -266,7 +268,7 @@ export default function CourseDetailsPage() {
                     <div>
                       <label className="block text-xs font-semibold text-zinc-400 mb-1">Preferred Contact</label>
                       <select 
-                        className="w-full px-3 py-2 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-zinc-300"
+                        className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
                         value={contactMethod}
                         onChange={(e) => setContactMethod(e.target.value)}
                       >
@@ -278,7 +280,7 @@ export default function CourseDetailsPage() {
                     <div>
                       <label className="block text-xs font-semibold text-zinc-400 mb-1">Preferred Time</label>
                       <select 
-                        className="w-full px-3 py-2 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-zinc-300"
+                        className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
                         value={contactTime}
                         onChange={(e) => setContactTime(e.target.value)}
                       >
@@ -295,7 +297,7 @@ export default function CourseDetailsPage() {
                     <textarea 
                       rows={2}
                       placeholder="Tell us about your background..." 
-                      className="w-full px-3 py-2 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-white resize-none"
+                      className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                     />

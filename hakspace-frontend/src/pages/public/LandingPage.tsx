@@ -2,7 +2,9 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '../../api/client'
 import { useAuthStore } from '../../store/authStore'
-import { GraduationCap, ArrowRight, Star, Clock, Users, ArrowUpRight } from 'lucide-react'
+import { ArrowRight, Clock } from 'lucide-react'
+import Navbar from '../../components/Navbar'
+import logoImg from '../../assets/Logo.jpg'
 
 interface Course {
   id: number
@@ -35,44 +37,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-brand-500 selection:text-white">
-      {/* Header / Navbar */}
-      <header className="fixed top-0 inset-x-0 h-20 bg-black/60 backdrop-blur-md border-b border-zinc-900 z-50">
-        <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <GraduationCap className="text-brand-500 w-8 h-8" />
-            <span className="font-black text-2xl tracking-tight text-white">HAK<span className="text-brand-500">SPACE</span></span>
-          </Link>
-
-          <nav className="flex items-center gap-6">
-            <Link to="/courses" className="text-sm font-semibold text-zinc-400 hover:text-white transition">
-              Courses
-            </Link>
-            
-            {user ? (
-              <>
-                {user.role === 'ADMIN' && (
-                  <Link to="/admin/dashboard" className="text-sm font-semibold text-brand-400 hover:text-brand-300 transition flex items-center gap-1">
-                    Admin Panel <ArrowUpRight size={14} />
-                  </Link>
-                )}
-                <button 
-                  onClick={() => { logout(); navigate('/'); }}
-                  className="px-4 py-2 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50 rounded-xl text-sm font-semibold transition"
-                >
-                  Log Out
-                </button>
-              </>
-            ) : (
-              <Link 
-                to="/login"
-                className="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-semibold transition shadow-lg shadow-brand-900/20"
-              >
-                Log In
-              </Link>
-            )}
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="pt-40 pb-20 relative overflow-hidden">
@@ -190,10 +155,9 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-zinc-900 bg-zinc-950/20 py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <GraduationCap className="text-brand-500 w-6 h-6" />
-            <span className="font-bold text-sm tracking-tight text-white">HAK<span className="text-brand-500">SPACE</span></span>
-            <span className="text-zinc-600 text-xs ml-4">© 2026 HakSpace. All rights reserved.</span>
+          <div className="flex items-center gap-3">
+            <img src={logoImg} alt="HakSpace" className="h-8 w-auto object-contain rounded-md" />
+            <span className="text-zinc-600 text-xs">© 2026 HakSpace. All rights reserved.</span>
           </div>
 
           <div className="flex items-center gap-6 text-zinc-500 text-xs">

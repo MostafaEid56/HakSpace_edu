@@ -302,7 +302,7 @@ export default function AdminCoursesPage() {
                     type="text" 
                     required
                     placeholder="e.g. Full Stack Web Development BootCamp" 
-                    className="w-full px-3.5 py-2.5 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-white"
+                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
@@ -314,7 +314,7 @@ export default function AdminCoursesPage() {
                     type="text" 
                     required
                     placeholder="e.g. Dr. Adam Smith" 
-                    className="w-full px-3.5 py-2.5 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-white"
+                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     value={instructorName}
                     onChange={(e) => setInstructorName(e.target.value)}
                   />
@@ -326,7 +326,7 @@ export default function AdminCoursesPage() {
                     type="text" 
                     required
                     placeholder="e.g. 12 Weeks" 
-                    className="w-full px-3.5 py-2.5 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-white"
+                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     value={duration}
                     onChange={(e) => setDuration(e.target.value)}
                   />
@@ -339,7 +339,7 @@ export default function AdminCoursesPage() {
                     required
                     min="0"
                     placeholder="299" 
-                    className="w-full px-3.5 py-2.5 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-white"
+                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
                   />
@@ -350,7 +350,7 @@ export default function AdminCoursesPage() {
                   <input 
                     type="url" 
                     placeholder="https://unsplash..." 
-                    className="w-full px-3.5 py-2.5 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-white"
+                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                   />
@@ -363,7 +363,7 @@ export default function AdminCoursesPage() {
                     step="0.1" 
                     min="0" 
                     max="5"
-                    className="w-full px-3.5 py-2.5 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-white"
+                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     value={rating}
                     onChange={(e) => setRating(Number(e.target.value))}
                   />
@@ -374,7 +374,7 @@ export default function AdminCoursesPage() {
                   <input 
                     type="number" 
                     min="0"
-                    className="w-full px-3.5 py-2.5 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-white"
+                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     value={studentCount}
                     onChange={(e) => setStudentCount(Number(e.target.value))}
                   />
@@ -386,7 +386,7 @@ export default function AdminCoursesPage() {
                     rows={4}
                     required
                     placeholder="Explain what students will learn, program modules..." 
-                    className="w-full px-3.5 py-2.5 bg-zinc-850 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 text-white resize-none"
+                    className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />

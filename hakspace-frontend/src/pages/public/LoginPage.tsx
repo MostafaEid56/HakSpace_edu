@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { apiClient } from '../../api/client'
 import { useAuthStore } from '../../store/authStore'
 import { toast } from 'react-toastify'
+import Navbar from '../../components/Navbar'
+import logoImg from '../../assets/Logo.jpg'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -48,8 +50,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
+      <Navbar />
       <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl transition hover:border-zinc-700">
         <div className="text-center mb-8">
+          <img src={logoImg} alt="HakSpace" className="h-14 w-auto object-contain rounded-xl mx-auto mb-4" />
           <h2 className="text-3xl font-extrabold text-white tracking-tight">Welcome Back</h2>
           <p className="text-zinc-400 mt-2">Sign in to manage your HakSpace learning</p>
         </div>

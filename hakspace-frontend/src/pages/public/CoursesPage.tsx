@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '../../api/client'
 import { Star, Clock, Users, ArrowRight } from 'lucide-react'
+import Navbar from '../../components/Navbar'
 
 interface Course {
   id: number
@@ -29,8 +30,9 @@ export default function CoursesPage() {
   })
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-16">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-black text-white">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 pt-32 pb-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
