@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import App from './App'
 import './index.css'
+import './i18n'  // ← Initialize i18next before rendering
 
 const queryClient = new QueryClient()
 
@@ -14,7 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <App />
-        <ToastContainer position="top-right" theme="dark" />
+        <ToastContainer position="top-left" theme="dark" rtl />
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>

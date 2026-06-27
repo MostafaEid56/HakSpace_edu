@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,44 +56,51 @@ public class AdminCourseController {
             @Valid @RequestBody CourseRequest req) {
 
         Course course = courseRepo.findById(id).orElseThrow(() ->
-                new RuntimeException("Course not found: " + id));
+                new RuntimeException("course.not.found"));
 
         mapRequestToCourse(req, course);
 
-        // Sync groups: keep existing by id, remove deleted, add new
-        List<CourseGroup> existingGroups = new ArrayList<>(groupRepo.findByCourseId(id));
+        // ── Sync groups in-place ──────────────────────────────────────────────
+        // IMPORTANT: with orphanRemoval=true we must NEVER replace the collection
+        // reference via setGroups(). Instead, we mutate the existing list so
+        // Hibernate can track additions and removals correctly.
+
+        List<CourseGroup> existingGroups = course.getGroups(); // managed collection
         Set<Long> incomingIds = req.getGroups().stream()
                 .filter(g -> g.getId() != null)
                 .map(CourseRequest.GroupRequest::getId)
                 .collect(Collectors.toSet());
 
-        // Delete groups that are no longer in the request
-        List<CourseGroup> toDelete = existingGroups.stream()
-                .filter(g -> !incomingIds.contains(g.getId()))
-                .collect(Collectors.toList());
-        groupRepo.deleteAll(toDelete);
+        // Remove groups that the client dropped
+        existingGroups.removeIf(g -> g.getId() != null && !incomingIds.contains(g.getId()));
 
-        // Update or create groups
-        List<CourseGroup> updatedGroups = new ArrayList<>();
+        // Update existing / add new groups
         for (CourseRequest.GroupRequest gr : req.getGroups()) {
-            CourseGroup group;
             if (gr.getId() != null) {
-                group = groupRepo.findById(gr.getId()).orElseThrow(() ->
-                        new RuntimeException("Group not found: " + gr.getId()));
+                // Update existing group already in the managed collection
+                existingGroups.stream()
+                        .filter(g -> g.getId().equals(gr.getId()))
+                        .findFirst()
+                        .ifPresent(g -> {
+                            g.setGroupName(gr.getGroupName());
+                            g.setMaxStudents(gr.getMaxStudents());
+                            g.setSchedule(gr.getSchedule());
+                            g.recalculateAvailability();
+                        });
             } else {
-                group = new CourseGroup();
-                group.setCourse(course);
+                // New group — add to existing managed collection
+                CourseGroup newGroup = new CourseGroup();
+                newGroup.setCourse(course);
+                newGroup.setGroupName(gr.getGroupName());
+                newGroup.setMaxStudents(gr.getMaxStudents() != null ? gr.getMaxStudents() : 20);
+                newGroup.setSchedule(gr.getSchedule());
+                newGroup.setCurrentStudents(0);
+                newGroup.setIsAvailable(true);
+                existingGroups.add(newGroup);
             }
-            group.setGroupName(gr.getGroupName());
-            group.setMaxStudents(gr.getMaxStudents());
-            group.setSchedule(gr.getSchedule());
-            group.recalculateAvailability();
-            updatedGroups.add(groupRepo.save(group));
         }
 
         course = courseRepo.save(course);
-        course.setGroups(updatedGroups);
-
         return ResponseEntity.ok(CourseDetailResponse.from(course));
     }
 
@@ -102,7 +108,7 @@ public class AdminCourseController {
     @Transactional
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Course c = courseRepo.findById(id).orElseThrow(() ->
-                new RuntimeException("Course not found: " + id));
+                new RuntimeException("course.not.found"));
         // Delete enrollments first (FK), then groups, then course
         enrollmentRepo.deleteByCourseId(id);
         groupRepo.deleteByCourseId(id);

@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -40,7 +39,7 @@ public class PublicCourseController {
     @GetMapping("/{id}")
     public ResponseEntity<CourseDetailResponse> getById(@PathVariable Long id) {
         Course course = courseRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Course not found: " + id));
+                .orElseThrow(() -> new RuntimeException("course.not.found"));
         return ResponseEntity.ok(CourseDetailResponse.from(course));
     }
 
@@ -57,24 +56,22 @@ public class PublicCourseController {
     public ResponseEntity<?> enroll(@Valid @RequestBody EnrollmentRequest req) {
         // Validate course exists
         Course course = courseRepo.findById(req.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found: " + req.getCourseId()));
+                .orElseThrow(() -> new RuntimeException("course.not.found"));
 
         // Validate group if provided
         CourseGroup group = null;
         if (req.getGroupId() != null) {
             group = groupRepo.findById(req.getGroupId())
-                    .orElseThrow(() -> new RuntimeException("Group not found: " + req.getGroupId()));
+                    .orElseThrow(() -> new RuntimeException("course.group.not.found"));
 
             // Ensure group belongs to the same course
             if (!group.getCourse().getId().equals(course.getId())) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Group does not belong to the specified course."));
+                throw new RuntimeException("course.group.mismatch");
             }
 
             // Prevent booking into a full group
             if (!group.getIsAvailable() || group.getCurrentStudents() >= group.getMaxStudents()) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("message", "The selected group is full. Please choose another group."));
+                throw new RuntimeException("course.group.full");
             }
         }
 

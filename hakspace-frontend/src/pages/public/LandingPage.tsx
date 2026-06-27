@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '../../api/client'
 import { useAuthStore } from '../../store/authStore'
 import { ArrowRight, Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import Navbar from '../../components/Navbar'
 import logoImg from '../../assets/Logo.jpg'
 
@@ -27,6 +28,7 @@ const fetchCourses = async (): Promise<Course[]> => {
 export default function LandingPage() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
+  const { t, i18n } = useTranslation()
 
   const { data: courses, isLoading } = useQuery<Course[]>({
     queryKey: ['featuredCourses'],
@@ -48,23 +50,23 @@ export default function LandingPage() {
 
         <div className="max-w-4xl mx-auto text-center px-6 relative">
           <span className="px-3.5 py-1.5 bg-brand-500/10 text-brand-400 rounded-full text-xs font-bold uppercase tracking-widest border border-brand-500/20 inline-block mb-6 animate-pulse">
-            Welcome to the future of tech education
+            {t('landing.badge')}
           </span>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
-            Master the Skills That <br className="hidden md:inline" />
+            {t('landing.hero_title_1')} <br className="hidden md:inline" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 via-rose-400 to-rose-600">
-              Define the Future
+              {t('landing.hero_title_2')}
             </span>
           </h1>
           <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            Gain job-ready skills through immersive, cohort-based developer bootcamps. Mentorship, practical projects, and a global student network await you.
+            {t('landing.hero_subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <button 
               onClick={() => navigate('/courses')} 
               className="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 active:scale-95 text-white px-8 py-4 rounded-xl font-bold transition shadow-lg shadow-brand-900/30 flex items-center justify-center gap-2 group text-base"
             >
-              Explore Course Catalog <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              {t('landing.explore_catalog')} <ArrowRight size={18} className={`transition-transform ${i18n.language === 'ar' ? 'group-hover:-translate-x-1 rotate-180' : 'group-hover:translate-x-1'}`} />
             </button>
           </div>
         </div>
@@ -75,19 +77,19 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
             <h3 className="text-3xl md:text-4xl font-extrabold text-white">98%</h3>
-            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">Employment Rate</p>
+            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">{t('landing.stats_employment')}</p>
           </div>
           <div>
             <h3 className="text-3xl md:text-4xl font-extrabold text-white">15k+</h3>
-            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">Alumni Worldwide</p>
+            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">{t('landing.stats_graduates')}</p>
           </div>
           <div>
             <h3 className="text-3xl md:text-4xl font-extrabold text-white">4.9/5</h3>
-            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">Student Satisfaction</p>
+            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">{t('landing.stats_satisfaction')}</p>
           </div>
           <div>
             <h3 className="text-3xl md:text-4xl font-extrabold text-white">50+</h3>
-            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">Hiring Partners</p>
+            <p className="text-zinc-500 text-xs md:text-sm font-semibold uppercase tracking-wider mt-1">{t('landing.stats_courses')}</p>
           </div>
         </div>
       </section>
@@ -96,14 +98,14 @@ export default function LandingPage() {
       <section className="py-24 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Featured Cohorts</h2>
-            <p className="text-zinc-400">Join our upcoming interactive programs led by industry leaders.</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">{t('landing.featured_title')}</h2>
+            <p className="text-zinc-400">{t('landing.featured_subtitle')}</p>
           </div>
           <button 
             onClick={() => navigate('/courses')} 
-            className="mt-4 md:mt-0 text-brand-400 hover:text-brand-300 font-semibold flex items-center gap-1.5 transition text-sm"
+            className="mt-4 md:mt-0 text-brand-400 hover:text-brand-300 font-semibold flex items-center gap-1.5 transition text-sm group"
           >
-            Browse all courses <ArrowRight size={16} />
+            {t('landing.view_all')} <ArrowRight size={16} className={`transition-transform ${i18n.language === 'ar' ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
@@ -158,12 +160,12 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <img src={logoImg} alt="HakSpace" className="h-8 w-auto object-contain rounded-md" />
-            <span className="text-zinc-600 text-xs">© 2026 HakSpace. All rights reserved.</span>
+            <span className="text-zinc-600 text-xs">© 2026 HakSpace. {t('landing.footer_rights')}</span>
           </div>
 
           <div className="flex items-center gap-6 text-zinc-500 text-xs">
-            <Link to="/courses" className="hover:text-white transition">Course Catalog</Link>
-            <Link to="/login" className="hover:text-white transition">Admin Portal</Link>
+            <Link to="/courses" className="hover:text-white transition">{t('nav.courses')}</Link>
+            <Link to="/login" className="hover:text-white transition">{t('nav.adminPanel')}</Link>
           </div>
         </div>
       </footer>

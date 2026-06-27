@@ -7,6 +7,7 @@ import {
   Star, Clock, User, Check, ArrowLeft, Send, Sparkles,
   Users, Calendar, AlertCircle, CheckCircle2
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import Navbar from '../../components/Navbar'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -69,6 +70,7 @@ function GroupCard({
   selected: boolean
   onSelect: () => void
 }) {
+  const { t } = useTranslation()
   const isFull = !group.isAvailable || group.remainingSeats <= 0
   const fillPct = Math.min(100, Math.round((group.currentStudents / group.maxStudents) * 100))
 
@@ -88,7 +90,7 @@ function GroupCard({
       {/* Full badge */}
       {isFull && (
         <span className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider bg-red-900/30 text-red-400 border border-red-900/40 px-2 py-0.5 rounded-full">
-          Full
+          {t('common.full')}
         </span>
       )}
 
@@ -110,9 +112,9 @@ function GroupCard({
         <div className="flex items-center gap-1.5 text-xs text-zinc-400 mb-3">
           <Users size={11} className="text-brand-500" />
           <span>
-            Seats: <strong className="text-white">{group.currentStudents}</strong> / {group.maxStudents}
+            {t('course_details.seats')}: <strong className="text-white">{group.currentStudents}</strong> / {group.maxStudents}
             {!isFull && (
-              <span className="ml-2 text-green-400">· {group.remainingSeats} remaining</span>
+              <span className="ml-2 text-green-400">· {group.remainingSeats} {t('course_details.remaining')}</span>
             )}
           </span>
         </div>
@@ -136,6 +138,7 @@ function GroupCard({
 export default function CourseDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation()
   const [success, setSuccess] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState<number | undefined>(undefined)
 
@@ -198,10 +201,10 @@ export default function CourseDetailsPage() {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
         <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl text-center max-w-md">
-          <h2 className="text-2xl font-bold text-red-500 mb-2">Course Not Found</h2>
-          <p className="text-zinc-400 mb-6">The course you are looking for does not exist or has been removed.</p>
+          <h2 className="text-2xl font-bold text-red-500 mb-2">{t('course_details.not_found_title')}</h2>
+          <p className="text-zinc-400 mb-6">{t('course_details.not_found_msg')}</p>
           <button onClick={() => navigate('/courses')} className="bg-brand-600 hover:bg-brand-500 px-6 py-2 rounded-xl transition">
-            Go back to catalog
+            {t('course_details.not_found_back')}
           </button>
         </div>
       </div>
@@ -223,7 +226,7 @@ export default function CourseDetailsPage() {
           onClick={() => navigate('/courses')}
           className="mb-8 text-sm font-semibold text-zinc-400 hover:text-white transition flex items-center gap-2 group"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Catalog
+          <ArrowLeft size={16} className={`transition-transform ${i18n.language === 'ar' ? 'group-hover:translate-x-1 rotate-180' : 'group-hover:-translate-x-1'}`} /> {t('course_details.back')}
         </button>
 
         <div className="grid md:grid-cols-3 gap-12 items-start">
@@ -234,7 +237,7 @@ export default function CourseDetailsPage() {
 
             <div className="flex flex-wrap gap-4 items-center text-sm text-zinc-400">
               <span className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 px-3.5 py-1.5 rounded-full">
-                <User size={14} className="text-brand-500" /> Instructor: <strong className="text-white ml-1">{course.instructorName}</strong>
+                <User size={14} className="text-brand-500" /> {t('course_details.instructor_label')}: <strong className="text-white ml-1">{course.instructorName}</strong>
               </span>
               <span className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 px-3.5 py-1.5 rounded-full">
                 <Clock size={14} className="text-brand-500" /> {course.duration}
@@ -254,7 +257,7 @@ export default function CourseDetailsPage() {
             </div>
 
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold border-b border-zinc-800 pb-3">Course Overview</h2>
+              <h2 className="text-2xl font-bold border-b border-zinc-800 pb-3">{t('course_details.overview')}</h2>
               <p className="text-zinc-300 text-lg leading-relaxed">{course.description}</p>
             </div>
 
@@ -263,13 +266,13 @@ export default function CourseDetailsPage() {
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold border-b border-zinc-800 pb-3 flex items-center gap-2">
                   <Users size={22} className="text-brand-500" />
-                  Available Groups
+                  {t('course_details.available_groups')}
                 </h2>
 
                 {availableGroups.length === 0 && (
                   <div className="flex items-center gap-3 p-4 bg-red-950/20 border border-red-900/30 rounded-xl">
                     <AlertCircle size={18} className="text-red-400 flex-shrink-0" />
-                    <p className="text-sm text-red-300">All groups are currently full. Please check back later or contact us.</p>
+                    <p className="text-sm text-red-300">{t('course_details.all_full')}</p>
                   </div>
                 )}
 
@@ -288,15 +291,15 @@ export default function CourseDetailsPage() {
 
             {/* What You Get */}
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold border-b border-zinc-800 pb-3">What You Will Get</h2>
+              <h2 className="text-2xl font-bold border-b border-zinc-800 pb-3">{t('course_details.benefits_title')}</h2>
               <ul className="grid md:grid-cols-2 gap-4">
                 {[
-                  'Professional certificate of completion',
-                  '1-on-1 mentorship sessions',
-                  'Lifetime access to online community',
-                  'Real-world portfolio projects',
-                  'Resume & LinkedIn profile optimization',
-                  'Direct job referral network',
+                  t('course_details.benefit_1'),
+                  t('course_details.benefit_2'),
+                  t('course_details.benefit_3'),
+                  t('course_details.benefit_4'),
+                  t('course_details.benefit_5'),
+                  t('course_details.benefit_6'),
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-start gap-3">
                     <span className="w-5 h-5 rounded-full bg-brand-500/10 text-brand-500 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -316,10 +319,10 @@ export default function CourseDetailsPage() {
 
               {/* Price */}
               <div className="mb-6 border-b border-zinc-800 pb-4">
-                <span className="text-zinc-400 text-sm font-semibold uppercase tracking-wider">Tuition Fees</span>
+                <span className="text-zinc-400 text-sm font-semibold uppercase tracking-wider">{t('course_details.sidebar_fees')}</span>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="text-4xl font-extrabold">${course.price}</span>
-                  <span className="text-zinc-500 text-xs">One-time payment</span>
+                  <span className="text-zinc-500 text-xs">{t('course_details.sidebar_one_time')}</span>
                 </div>
               </div>
 
@@ -328,7 +331,7 @@ export default function CourseDetailsPage() {
                 <div className="mb-4 flex items-center gap-2 bg-brand-500/10 border border-brand-500/20 rounded-xl px-3 py-2">
                   <CheckCircle2 size={14} className="text-brand-400 flex-shrink-0" />
                   <span className="text-xs text-brand-300 font-semibold">
-                    {course.groups.find(g => g.id === selectedGroupId)?.groupName ?? 'Group'} selected
+                    {course.groups.find(g => g.id === selectedGroupId)?.groupName ?? 'Group'} {t('course_details.sidebar_selected_group')}
                   </span>
                 </div>
               )}
@@ -338,36 +341,36 @@ export default function CourseDetailsPage() {
                   <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto">
                     <Check size={32} />
                   </div>
-                  <h3 className="text-xl font-bold">Request Received!</h3>
+                  <h3 className="text-xl font-bold">{t('course_details.success_title')}</h3>
                   <p className="text-zinc-400 text-sm leading-relaxed">
-                    Thank you for your interest! An advisor will reach out to you within 24 hours.
+                    {t('course_details.success_msg')}
                   </p>
                   <button
                     onClick={() => { setSuccess(false); setSelectedGroupId(undefined) }}
                     className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-semibold py-2.5 rounded-xl text-sm transition"
                   >
-                    Submit another inquiry
+                    {t('course_details.success_another')}
                   </button>
                 </div>
               ) : (
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   <div className="flex items-center gap-2 mb-2">
                     <Sparkles size={16} className="text-brand-500" />
-                    <h3 className="font-bold text-lg">Apply / Inquiry Form</h3>
+                    <h3 className="font-bold text-lg">{t('course_details.sidebar_form_title')}</h3>
                   </div>
 
                   {/* Group required warning */}
                   {hasGroups && !selectedGroupId && (
                     <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-900/20 border border-amber-900/30 rounded-lg px-3 py-2">
                       <AlertCircle size={13} className="flex-shrink-0" />
-                      Please select a group above before submitting.
+                      {t('course_details.select_group_warning')}
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Full Name *</label>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">{t('course_details.form_name')}</label>
                     <input
-                      type="text" required placeholder="John Doe"
+                      type="text" required placeholder={t('course_details.form_name_placeholder')}
                       className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                       value={fullName} onChange={e => setFullName(e.target.value)}
                     />
@@ -375,17 +378,17 @@ export default function CourseDetailsPage() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">Phone *</label>
+                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t('course_details.form_phone')}</label>
                       <input
-                        type="tel" required placeholder="+1 555-0199"
+                        type="tel" required placeholder={t('course_details.form_phone_placeholder')}
                         className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                         value={phone} onChange={e => setPhone(e.target.value)}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">City *</label>
+                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t('course_details.form_city')}</label>
                       <input
-                        type="text" required placeholder="New York"
+                        type="text" required placeholder={t('course_details.form_city_placeholder')}
                         className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                         value={city} onChange={e => setCity(e.target.value)}
                       />
@@ -393,9 +396,9 @@ export default function CourseDetailsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Email Address *</label>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">{t('course_details.form_email')}</label>
                     <input
-                      type="email" required placeholder="john@example.com"
+                      type="email" required placeholder={t('course_details.form_email_placeholder')}
                       className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                       value={email} onChange={e => setEmail(e.target.value)}
                     />
@@ -403,34 +406,34 @@ export default function CourseDetailsPage() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">Preferred Contact</label>
+                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t('course_details.form_contact_method')}</label>
                       <select
                         className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
                         value={contactMethod} onChange={e => setContactMethod(e.target.value)}
                       >
-                        <option value="WHATSAPP">WhatsApp</option>
-                        <option value="PHONE">Phone Call</option>
-                        <option value="EMAIL">Email</option>
+                        <option value="WHATSAPP">{t('course_details.contact_whatsapp')}</option>
+                        <option value="PHONE">{t('course_details.contact_phone')}</option>
+                        <option value="EMAIL">{t('course_details.contact_email')}</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-400 mb-1">Preferred Time</label>
+                      <label className="block text-xs font-semibold text-zinc-400 mb-1">{t('course_details.form_contact_time')}</label>
                       <select
                         className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
                         value={contactTime} onChange={e => setContactTime(e.target.value)}
                       >
-                        <option value="ANYTIME">Anytime</option>
-                        <option value="MORNING">Morning</option>
-                        <option value="AFTERNOON">Afternoon</option>
-                        <option value="EVENING">Evening</option>
+                        <option value="ANYTIME">{t('course_details.time_anytime')}</option>
+                        <option value="MORNING">{t('course_details.time_morning')}</option>
+                        <option value="AFTERNOON">{t('course_details.time_afternoon')}</option>
+                        <option value="EVENING">{t('course_details.time_evening')}</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Notes / Questions</label>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">{t('course_details.form_notes')}</label>
                     <textarea
-                      rows={2} placeholder="Tell us about your background..."
+                      rows={2} placeholder={t('course_details.form_notes_placeholder')}
                       className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
                       value={notes} onChange={e => setNotes(e.target.value)}
                     />
@@ -443,7 +446,7 @@ export default function CourseDetailsPage() {
                   >
                     {mutation.isPending
                       ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      : <><Send size={14} /> Submit Application</>
+                      : <><Send size={14} className={i18n.language === 'ar' ? 'rotate-180' : ''} /> {t('course_details.form_submit')}</>
                     }
                   </button>
                 </form>

@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/leads")
@@ -43,18 +42,18 @@ public class AdminEnrollmentController {
 
         String rawStatus = body.get("status");
         if (rawStatus == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "status field is required"));
+            throw new RuntimeException("enrollment.status.required");
         }
 
         LeadStatus newStatus;
         try {
             newStatus = LeadStatus.valueOf(rawStatus.toUpperCase());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Invalid status value: " + rawStatus));
+            throw new RuntimeException("enrollment.status.invalid");
         }
 
         Enrollment enrollment = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Enrollment not found: " + id));
+                .orElseThrow(() -> new RuntimeException("enrollment.not.found"));
 
         LeadStatus oldStatus = enrollment.getStatus();
         Long groupId = (enrollment.getGroup() != null) ? enrollment.getGroup().getId() : null;
@@ -67,8 +66,7 @@ public class AdminEnrollmentController {
             if (approving) {
                 int updated = groupRepo.incrementStudentCount(groupId);
                 if (updated == 0) {
-                    return ResponseEntity.badRequest()
-                            .body(Map.of("message", "Cannot enroll: the selected group is already full."));
+                    throw new RuntimeException("enrollment.group.full");
                 }
             } else if (cancelling) {
                 groupRepo.decrementStudentCount(groupId);

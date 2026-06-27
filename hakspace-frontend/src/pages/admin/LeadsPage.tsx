@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../../api/client'
 import { toast } from 'react-toastify'
 import { Mail, Phone, MapPin, Calendar, MessageCircle, FileText, CheckCircle2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface Course {
   id: number
@@ -42,6 +43,7 @@ const updateLeadStatus = async ({ id, status }: { id: number; status: string }) 
 
 export default function LeadsPage() {
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'ALL' | 'NEW' | 'CONTACTED' | 'ENROLLED' | 'CLOSED'>('ALL')
 
   const { data: leads, isLoading, error } = useQuery<Enrollment[]>({
@@ -53,11 +55,11 @@ export default function LeadsPage() {
     mutationFn: updateLeadStatus,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] })
-      toast.success('Lead status updated successfully!')
+      toast.success(t('leads.update_success'))
     },
     onError: (err: any) => {
       console.error(err)
-      toast.error('Failed to update lead status.')
+      toast.error(t('leads.update_error'))
     }
   })
 
@@ -78,16 +80,31 @@ export default function LeadsPage() {
     CLOSED: 'bg-zinc-800 text-zinc-400 border-zinc-700',
   }
 
+  const tabLabels: Record<string, string> = {
+    ALL: t('leads.tab_all'),
+    NEW: t('leads.tab_new'),
+    CONTACTED: t('leads.tab_contacted'),
+    ENROLLED: t('leads.tab_enrolled'),
+    CLOSED: t('leads.tab_closed'),
+  }
+
+  const statusLabels: Record<string, string> = {
+    NEW: t('leads.status_new'),
+    CONTACTED: t('leads.status_contacted'),
+    ENROLLED: t('leads.status_enrolled'),
+    CLOSED: t('leads.status_closed'),
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Leads Management</h1>
-          <p className="text-zinc-500 text-sm mt-1">Review and manage interest inquiries from prospective students.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">{t('leads.title')}</h1>
+          <p className="text-zinc-500 text-sm mt-1">{t('leads.subtitle')}</p>
         </div>
         
         {/* Tab Filters */}
-        <div className="flex bg-zinc-900 border border-zinc-850 p-1 rounded-xl">
+        <div className="flex bg-zinc-900 border border-zinc-850 p-1 rounded-xl flex-wrap gap-1">
           {(['ALL', 'NEW', 'CONTACTED', 'ENROLLED', 'CLOSED'] as const).map((tab) => (
             <button
               key={tab}
@@ -98,7 +115,7 @@ export default function LeadsPage() {
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              {tab}
+              {tabLabels[tab]}
             </button>
           ))}
         </div>
@@ -106,22 +123,22 @@ export default function LeadsPage() {
 
       {isLoading && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-12 text-center animate-pulse">
-          <p className="text-zinc-400">Loading student leads...</p>
+          <p className="text-zinc-400">{t('leads.loading')}</p>
         </div>
       )}
 
       {error && (
         <div className="bg-red-950/20 border border-red-900/50 rounded-2xl p-8 text-center max-w-lg">
-          <h3 className="text-lg font-bold text-red-400 font-sans">Error loading leads</h3>
-          <p className="text-zinc-400 text-sm mt-1">Make sure you are authenticated as an administrator.</p>
+          <h3 className="text-lg font-bold text-red-400 font-sans">{t('leads.error_title')}</h3>
+          <p className="text-zinc-400 text-sm mt-1">{t('leads.error_desc')}</p>
         </div>
       )}
 
       {leads && filteredLeads.length === 0 && (
         <div className="bg-zinc-900/50 border border-zinc-850 rounded-2xl p-12 text-center">
           <CheckCircle2 className="mx-auto text-zinc-600 mb-3" size={36} />
-          <h3 className="text-lg font-bold text-zinc-300">No leads found</h3>
-          <p className="text-zinc-500 text-sm mt-1">There are no leads matching the active status filter.</p>
+          <h3 className="text-lg font-bold text-zinc-300">{t('leads.empty_title')}</h3>
+          <p className="text-zinc-500 text-sm mt-1">{t('leads.empty_desc')}</p>
         </div>
       )}
 
@@ -131,11 +148,11 @@ export default function LeadsPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-zinc-800 bg-zinc-950/50 text-zinc-400 text-xs font-bold uppercase tracking-wider">
-                  <th className="py-4 px-6">Student Info</th>
-                  <th className="py-4 px-6">Selected Course</th>
-                  <th className="py-4 px-6">Preference</th>
-                  <th className="py-4 px-6">Notes</th>
-                  <th className="py-4 px-6">Status</th>
+                  <th className="py-4 px-6">{t('leads.col_applicant')}</th>
+                  <th className="py-4 px-6">{t('leads.col_course_group')}</th>
+                  <th className="py-4 px-6">{t('leads.col_contact')}</th>
+                  <th className="py-4 px-6">{t('leads.notes')}</th>
+                  <th className="py-4 px-6">{t('leads.col_status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800 text-sm">
@@ -154,7 +171,7 @@ export default function LeadsPage() {
                     {/* Course & Group */}
                     <td className="py-4 px-6">
                       <span className="font-semibold text-zinc-200">
-                        {lead.course ? lead.course.title : 'N/A'}
+                        {lead.course ? lead.course.title : t('common.na')}
                       </span>
                       {lead.group && (
                         <div className="mt-1 flex items-center gap-1.5">
@@ -165,7 +182,7 @@ export default function LeadsPage() {
                         </div>
                       )}
                       <p className="text-[10px] text-zinc-500 mt-1">
-                        Registered: {new Date(lead.createdAt).toLocaleDateString()}
+                        {t('leads.registered')}: {new Date(lead.createdAt).toLocaleDateString()}
                       </p>
                     </td>
 
@@ -173,11 +190,11 @@ export default function LeadsPage() {
                     <td className="py-4 px-6 space-y-1 text-xs text-zinc-300">
                       <div className="flex items-center gap-1.5">
                         <MessageCircle size={12} className="text-brand-500" />
-                        <span>Method: <strong className="text-white font-bold">{lead.contactMethod}</strong></span>
+                        <span>{t('leads.contact_method')}: <strong className="text-white font-bold">{lead.contactMethod}</strong></span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Calendar size={12} className="text-brand-500" />
-                        <span>Time: <strong className="text-white font-bold">{lead.contactTime}</strong></span>
+                        <span>{t('leads.contact_time')}: <strong className="text-white font-bold">{lead.contactTime}</strong></span>
                       </div>
                     </td>
 
@@ -189,7 +206,7 @@ export default function LeadsPage() {
                           <p className="line-clamp-2 hover:line-clamp-none transition cursor-pointer">{lead.notes}</p>
                         </div>
                       ) : (
-                        <span className="text-zinc-600 text-xs italic">No additional notes</span>
+                        <span className="text-zinc-600 text-xs italic">{t('common.na')}</span>
                       )}
                     </td>
 
@@ -202,10 +219,10 @@ export default function LeadsPage() {
                           statusColors[lead.status] || 'bg-zinc-800'
                         }`}
                       >
-                        <option value="NEW" className="bg-zinc-950 text-blue-400">NEW</option>
-                        <option value="CONTACTED" className="bg-zinc-950 text-yellow-400">CONTACTED</option>
-                        <option value="ENROLLED" className="bg-zinc-950 text-green-400">ENROLLED</option>
-                        <option value="CLOSED" className="bg-zinc-950 text-zinc-400">CLOSED</option>
+                        <option value="NEW" className="bg-zinc-950 text-blue-400">{statusLabels.NEW}</option>
+                        <option value="CONTACTED" className="bg-zinc-950 text-yellow-400">{statusLabels.CONTACTED}</option>
+                        <option value="ENROLLED" className="bg-zinc-950 text-green-400">{statusLabels.ENROLLED}</option>
+                        <option value="CLOSED" className="bg-zinc-950 text-zinc-400">{statusLabels.CLOSED}</option>
                       </select>
                     </td>
                   </tr>

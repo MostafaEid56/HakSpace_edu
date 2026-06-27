@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '../../api/client'
 import { Star, Clock, Users, ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import Navbar from '../../components/Navbar'
 
 interface Course {
@@ -24,6 +25,7 @@ const fetchCourses = async (): Promise<Course[]> => {
 
 export default function CoursesPage() {
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation()
 
   const { data: courses, isLoading, error } = useQuery<Course[]>({
     queryKey: ['courses'],
@@ -37,17 +39,17 @@ export default function CoursesPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-              Explore Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-rose-400">Programs</span>
+              {t('courses.title')}
             </h1>
             <p className="text-zinc-400 text-lg max-w-xl">
-              Professional, hands-on, instructor-led training designed to advance your tech career.
+              {t('courses.subtitle')}
             </p>
           </div>
           <button 
             onClick={() => navigate('/')} 
-            className="mt-4 md:mt-0 text-sm font-semibold text-zinc-400 hover:text-white transition flex items-center gap-1"
+            className="mt-4 md:mt-0 text-sm font-semibold text-zinc-400 hover:text-white transition flex items-center gap-1 group"
           >
-            Back to Home <ArrowRight size={16} />
+            {t('course_details.back')} <ArrowRight size={16} className={`transition-transform ${i18n.language === 'ar' ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
@@ -70,21 +72,19 @@ export default function CoursesPage() {
 
         {error && (
           <div className="bg-red-950/20 border border-red-900/50 rounded-2xl p-8 text-center max-w-lg mx-auto">
-            <h3 className="text-xl font-bold text-red-400 mb-2">Failed to load courses</h3>
-            <p className="text-zinc-400 mb-4">Something went wrong while communicating with the server.</p>
+            <h3 className="text-xl font-bold text-red-400 mb-2">{t('courses.error')}</h3>
             <button 
               onClick={() => window.location.reload()} 
-              className="bg-red-600 hover:bg-red-500 px-6 py-2.5 rounded-xl font-semibold transition"
+              className="bg-red-600 hover:bg-red-500 px-6 py-2.5 rounded-xl font-semibold transition mt-4"
             >
-              Try Again
+              {t('common.retry')}
             </button>
           </div>
         )}
 
         {courses && courses.length === 0 && (
           <div className="text-center py-20 bg-zinc-900/50 border border-zinc-800 rounded-3xl">
-            <h3 className="text-2xl font-bold mb-2">No courses available</h3>
-            <p className="text-zinc-400">We are currently updating our syllabus. Please check back later.</p>
+            <h3 className="text-2xl font-bold mb-2">{t('courses.no_courses')}</h3>
           </div>
         )}
 
@@ -125,17 +125,17 @@ export default function CoursesPage() {
                       <div className="w-6 h-6 rounded-full bg-brand-500/20 text-brand-500 flex items-center justify-center font-bold text-xs">
                         {course.instructorName.charAt(0)}
                       </div>
-                      <span className="text-xs text-zinc-400">By {course.instructorName}</span>
+                      <span className="text-xs text-zinc-400">{course.instructorName}</span>
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center pt-4 border-t border-zinc-800/80">
                     <div className="flex flex-col">
-                      <span className="text-zinc-500 text-xs uppercase tracking-wider font-semibold">Price</span>
+                      <span className="text-zinc-500 text-xs uppercase tracking-wider font-semibold">{t('courses.price')}</span>
                       <span className="text-2xl font-bold">${course.price}</span>
                     </div>
                     <button className="px-5 py-2.5 bg-zinc-800 group-hover:bg-brand-600 group-hover:text-white rounded-xl text-sm font-semibold transition-colors duration-300">
-                      View Details
+                      {t('courses.view_details')}
                     </button>
                   </div>
                 </div>

@@ -16,16 +16,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        if (userRepo.existsByEmail(user.getEmail())) return ResponseEntity.badRequest().body("Email exists");
+        if (userRepo.existsByEmail(user.getEmail()))
+            throw new RuntimeException("auth.email.exists");
         user.setPassword(encoder.encode(user.getPassword()));
         userRepo.save(user);
-        return ResponseEntity.ok(Map.of("message", "Registered"));
+        return ResponseEntity.ok(Map.of("message", "auth.registered"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> creds) {
-        User user = userRepo.findByEmail(creds.get("email")).orElseThrow(() -> new RuntimeException("Invalid"));
-        if (!encoder.matches(creds.get("password"), user.getPassword())) throw new RuntimeException("Invalid");
+        User user = userRepo.findByEmail(creds.get("email"))
+                .orElseThrow(() -> new RuntimeException("auth.credentials.invalid"));
+        if (!encoder.matches(creds.get("password"), user.getPassword()))
+            throw new RuntimeException("auth.credentials.invalid");
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
         return ResponseEntity.ok(Map.of("token", token, "user", Map.of("id", user.getId(), "role", user.getRole())));
     }

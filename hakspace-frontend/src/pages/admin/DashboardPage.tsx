@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '../../api/client'
 import { DollarSign, Users, Award, TrendingUp } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface DashboardStats {
   totalRevenue: number
@@ -14,6 +15,7 @@ const fetchStats = async (): Promise<DashboardStats> => {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation()
   const { data: stats, isLoading, error } = useQuery<DashboardStats>({
     queryKey: ['dashboardStats'],
     queryFn: fetchStats,
@@ -22,8 +24,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight">Overview Dashboard</h1>
-        <p className="text-zinc-500 text-sm mt-1">Real-time metrics and insights on HakSpace enrollment.</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">{t('dashboard.title')}</h1>
+        <p className="text-zinc-500 text-sm mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
       {isLoading && (
@@ -36,8 +38,8 @@ export default function DashboardPage() {
 
       {error && (
         <div className="bg-red-950/20 border border-red-900/50 rounded-2xl p-8 text-center max-w-lg">
-          <h3 className="text-lg font-bold text-red-400">Failed to load statistics</h3>
-          <p className="text-zinc-400 text-sm mt-1">Please make sure the backend server is running and accessible.</p>
+          <h3 className="text-lg font-bold text-red-400">{t('dashboard.error_title')}</h3>
+          <p className="text-zinc-400 text-sm mt-1">{t('dashboard.error_desc')}</p>
         </div>
       )}
 
@@ -49,10 +51,10 @@ export default function DashboardPage() {
               <div className="absolute top-6 right-6 w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center">
                 <DollarSign size={24} />
               </div>
-              <p className="text-zinc-400 text-sm font-semibold uppercase tracking-wider">Total Revenue</p>
+              <p className="text-zinc-400 text-sm font-semibold uppercase tracking-wider">{t('dashboard.total_revenue')}</p>
               <h2 className="text-3xl font-black mt-2 text-white">${stats.totalRevenue.toLocaleString()}</h2>
               <div className="mt-4 flex items-center gap-1.5 text-xs text-emerald-500 font-semibold">
-                <TrendingUp size={14} /> +12.4% from last month
+                <TrendingUp size={14} /> {t('dashboard.revenue_growth')}
               </div>
             </div>
 
@@ -61,10 +63,10 @@ export default function DashboardPage() {
               <div className="absolute top-6 right-6 w-12 h-12 bg-brand-500/10 text-brand-500 rounded-xl flex items-center justify-center">
                 <Users size={24} />
               </div>
-              <p className="text-zinc-400 text-sm font-semibold uppercase tracking-wider">Active Students</p>
+              <p className="text-zinc-400 text-sm font-semibold uppercase tracking-wider">{t('dashboard.active_students')}</p>
               <h2 className="text-3xl font-black mt-2 text-white">{stats.activeStudents.toLocaleString()}</h2>
               <div className="mt-4 flex items-center gap-1.5 text-xs text-brand-500 font-semibold">
-                <TrendingUp size={14} /> +4.2% from last week
+                <TrendingUp size={14} /> {t('dashboard.students_growth')}
               </div>
             </div>
 
@@ -73,10 +75,10 @@ export default function DashboardPage() {
               <div className="absolute top-6 right-6 w-12 h-12 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center">
                 <Award size={24} />
               </div>
-              <p className="text-zinc-400 text-sm font-semibold uppercase tracking-wider">Course Completions</p>
+              <p className="text-zinc-400 text-sm font-semibold uppercase tracking-wider">{t('dashboard.course_completions')}</p>
               <h2 className="text-3xl font-black mt-2 text-white">{stats.courseCompletions.toLocaleString()}</h2>
               <div className="mt-4 flex items-center gap-1.5 text-xs text-blue-400 font-semibold">
-                <TrendingUp size={14} /> +8.1% completion rate
+                <TrendingUp size={14} /> {t('dashboard.completions_growth')}
               </div>
             </div>
           </div>
@@ -84,14 +86,14 @@ export default function DashboardPage() {
           {/* Quick Stats Summary or info panel */}
           <div className="bg-zinc-900/50 border border-zinc-850 rounded-2xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-1">
-              <h3 className="text-lg font-bold">System Status</h3>
+              <h3 className="text-lg font-bold">{t('dashboard.system_status')}</h3>
               <p className="text-zinc-400 text-sm leading-relaxed">
-                All database metrics are active. Lead synchronization is functioning normally.
+                {t('dashboard.system_status_desc')}
               </p>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></span>
-              <span className="text-xs font-bold uppercase tracking-wider text-green-400">Connected to Database</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-green-400">{t('dashboard.connected')}</span>
             </div>
           </div>
         </>

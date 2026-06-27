@@ -19,11 +19,15 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
+    // Auth token
     const token = localStorage.getItem('hakspace_token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    return config;
+    // Send current UI language so Spring Boot resolves the right message bundle
+    const lang = localStorage.getItem('hakspace_lang') || 'ar'
+    config.headers['Accept-Language'] = lang
+    return config
   },
   (error) => {
     return Promise.reject(error)

@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { apiClient } from '../../api/client'
 import { useAuthStore } from '../../store/authStore'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 import Navbar from '../../components/Navbar'
 import logoImg from '../../assets/Logo.jpg'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const loginStore = useAuthStore((state) => state.login)
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,7 +18,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password) {
-      toast.error('Please enter email and password')
+      toast.error(t('login.error_empty'))
       return
     }
 
@@ -32,7 +34,7 @@ export default function LoginPage() {
         email: email, // Set email manually since backend doesn't return it in the inner user object
       })
 
-      toast.success('Logged in successfully!')
+      toast.success(t('login.success'))
       
       // Redirect based on role
       if (user.role === 'ADMIN') {
@@ -42,7 +44,7 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error(err)
-      toast.error(err.response?.data?.message || 'Invalid email or password')
+      toast.error(err.response?.data?.message || t('login.error_invalid'))
     } finally {
       setLoading(false)
     }
@@ -54,27 +56,27 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl transition hover:border-zinc-700">
         <div className="text-center mb-8">
           <img src={logoImg} alt="HakSpace" className="h-14 w-auto object-contain rounded-xl mx-auto mb-4" />
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Welcome Back</h2>
-          <p className="text-zinc-400 mt-2">Sign in to manage your HakSpace learning</p>
+          <h2 className="text-3xl font-extrabold text-white tracking-tight">{t('login.welcome')}</h2>
+          <p className="text-zinc-400 mt-2">{t('login.subtitle')}</p>
         </div>
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Email Address</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">{t('login.email_label')}</label>
             <input 
               type="email"
               className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition"
-              placeholder="admin@hakspace.com"
+              placeholder={t('login.email_placeholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Password</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">{t('login.password_label')}</label>
             <input 
               type="password" 
               className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" 
-              placeholder="••••••••"
+              placeholder={t('login.password_placeholder')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
@@ -88,7 +90,7 @@ export default function LoginPage() {
             {loading ? (
               <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             ) : (
-              'Log In'
+              t('login.submit')
             )}
           </button>
         </form>
