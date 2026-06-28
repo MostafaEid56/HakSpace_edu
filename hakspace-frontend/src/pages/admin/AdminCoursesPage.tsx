@@ -26,6 +26,7 @@ interface Course {
   title: string
   description: string
   imageUrl: string
+  courseMaterialsLink?: string
   duration: string
   instructorName: string
   price: number
@@ -66,6 +67,7 @@ export default function AdminCoursesPage() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [courseMaterialsLink, setCourseMaterialsLink] = useState('')
   const [duration, setDuration] = useState('')
   const [instructorName, setInstructorName] = useState('')
   const [price, setPrice] = useState<number>(0)
@@ -120,6 +122,7 @@ export default function AdminCoursesPage() {
       setTitle(course.title)
       setDescription(course.description)
       setImageUrl(course.imageUrl || '')
+      setCourseMaterialsLink(course.courseMaterialsLink || '')
       setDuration(course.duration)
       setInstructorName(course.instructorName)
       setPrice(course.price)
@@ -136,6 +139,7 @@ export default function AdminCoursesPage() {
       setTitle('')
       setDescription('')
       setImageUrl('https://images.unsplash.com/photo-1517694712202-14dd9538aa97')
+      setCourseMaterialsLink('')
       setDuration('12 Weeks')
       setInstructorName('')
       setPrice(199)
@@ -174,6 +178,10 @@ export default function AdminCoursesPage() {
       toast.error(t('admin_courses.validation_required'))
       return
     }
+    if (courseMaterialsLink && !/^https?:\/\/.+/.test(courseMaterialsLink)) {
+      toast.error(t('admin_courses.validation_materials_url'))
+      return
+    }
     for (const g of groups) {
       if (!g.groupName.trim()) { toast.error(t('admin_courses.validation_group_name')); return }
       if (!g.schedule.trim()) { toast.error(t('admin_courses.validation_group_schedule')); return }
@@ -181,7 +189,8 @@ export default function AdminCoursesPage() {
     }
 
     const payload = {
-      title, description, imageUrl, duration,
+      title, description, imageUrl, courseMaterialsLink: courseMaterialsLink || null,
+      duration,
       instructorName, price: Number(price),
       rating: Number(rating), studentCount: Number(studentCount),
       groups,
@@ -408,6 +417,16 @@ export default function AdminCoursesPage() {
                       className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                       value={imageUrl} onChange={e => setImageUrl(e.target.value)}
                     />
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">{t('admin_courses.field_materials_link')}</label>
+                    <input
+                      type="url" placeholder={t('admin_courses.field_materials_link_placeholder')}
+                      className="w-full px-3.5 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      value={courseMaterialsLink} onChange={e => setCourseMaterialsLink(e.target.value)}
+                    />
+                    <p className="text-[10px] text-zinc-600 mt-1">{t('admin_courses.field_materials_link_desc')}</p>
                   </div>
 
                   <div>

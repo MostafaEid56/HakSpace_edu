@@ -103,7 +103,9 @@
     "not_found_back": "Go back to catalog",
     "instructor_label": "Instructor",
     "duration_label": "Duration",
-    "rating_label": "Rating"
+    "rating_label": "Rating",
+    "materials_title": "Course Materials",
+    "materials_button": "View Course Materials"
   },
   "login": {
     "welcome": "Welcome Back",
@@ -194,6 +196,10 @@
     "validation_group_name": "All groups must have a name.",
     "validation_group_schedule": "All groups must have a schedule.",
     "validation_group_students": "Max students must be at least 1.",
+    "field_materials_link": "Course Materials Link (Google Drive)",
+    "field_materials_link_placeholder": "https://drive.google.com/drive/folders/...",
+    "field_materials_link_desc": "Link to course PDF, notes, assignments, and learning materials.",
+    "validation_materials_url": "Please enter a valid URL (must start with http:// or https://).",
     "edit_tooltip": "Edit Course",
     "delete_tooltip": "Delete Course",
     "full_badge": "Full"

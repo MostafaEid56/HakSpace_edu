@@ -103,7 +103,9 @@
     "not_found_back": "العودة إلى الكتالوج",
     "instructor_label": "المدرب",
     "duration_label": "المدة",
-    "rating_label": "التقييم"
+    "rating_label": "التقييم",
+    "materials_title": "المواد الدراسية",
+    "materials_button": "عرض المواد الدراسية"
   },
   "login": {
     "welcome": "مرحباً بعودتك",
@@ -194,6 +196,10 @@
     "validation_group_name": "يجب أن تحتوي جميع المجموعات على اسم.",
     "validation_group_schedule": "يجب أن تحتوي جميع المجموعات على جدول زمني.",
     "validation_group_students": "يجب أن يكون الحد الأقصى للطلاب 1 على الأقل.",
+    "field_materials_link": "رابط المواد الدراسية (Google Drive)",
+    "field_materials_link_placeholder": "https://drive.google.com/drive/folders/...",
+    "field_materials_link_desc": "رابط لملف PDF للدورة والملاحظات والواجبات والمواد التعليمية.",
+    "validation_materials_url": "يرجى إدخال رابط صالح (يجب أن يبدأ بـ http:// أو https://).",
     "edit_tooltip": "تعديل الدورة",
     "delete_tooltip": "حذف الدورة",
     "full_badge": "مكتمل"

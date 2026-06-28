@@ -5,7 +5,7 @@ import { apiClient } from '../../api/client'
 import { toast } from 'react-toastify'
 import {
   Star, Clock, User, Check, ArrowLeft, Send, Sparkles,
-  Users, Calendar, AlertCircle, CheckCircle2
+  Users, Calendar, AlertCircle, CheckCircle2, ExternalLink
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Navbar from '../../components/Navbar'
@@ -29,6 +29,7 @@ interface Course {
   title: string
   description: string
   imageUrl: string
+  courseMaterialsLink?: string
   duration: string
   instructorName: string
   price: number
@@ -313,6 +314,25 @@ export default function CourseDetailsPage() {
                 ))}
               </ul>
             </div>
+
+            {/* Course Materials */}
+            {course.courseMaterialsLink && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold border-b border-zinc-800 pb-3 flex items-center gap-2">
+                  <ExternalLink size={22} className="text-brand-500" />
+                  {t('course_details.materials_title')}
+                </h2>
+                <a
+                  href={course.courseMaterialsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white rounded-xl text-sm font-bold transition shadow-lg shadow-brand-900/20"
+                >
+                  <ExternalLink size={16} />
+                  {t('course_details.materials_button')}
+                </a>
+              </div>
+            )}
 
             {/* Enrolled Students (Admin only) */}
             {user?.role === 'ADMIN' && (

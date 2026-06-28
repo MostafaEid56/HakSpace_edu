@@ -16,6 +16,7 @@ public class CourseDetailResponse {
     private String title;
     private String description;
     private String imageUrl;
+    private String courseMaterialsLink;
     private String duration;
     private String instructorName;
     private Double price;
@@ -29,6 +30,7 @@ public class CourseDetailResponse {
         dto.title = course.getTitle();
         dto.description = course.getDescription();
         dto.imageUrl = course.getImageUrl();
+        dto.courseMaterialsLink = course.getCourseMaterialsLink();
         dto.duration = course.getDuration();
         dto.instructorName = course.getInstructorName();
         dto.price = course.getPrice();

@@ -24,6 +24,7 @@ public class Course {
     private String description;
 
     private String imageUrl;
+    private String courseMaterialsLink;
     private String duration;
     private String instructorName;
     private Double price;

@@ -2,6 +2,7 @@ package com.hakspace.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -18,6 +19,10 @@ public class CourseRequest {
 
     private String description;
     private String imageUrl;
+
+    @Pattern(regexp = "^(https?://).*", message = "Must be a valid URL starting with http:// or https://")
+    private String courseMaterialsLink;
+
     private String duration;
     private String instructorName;
     private Double price;

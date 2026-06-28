@@ -153,6 +153,7 @@ public class CourseService {
         course.setTitle(req.getTitle());
         course.setDescription(req.getDescription());
         course.setImageUrl(req.getImageUrl());
+        course.setCourseMaterialsLink(req.getCourseMaterialsLink());
         course.setDuration(req.getDuration());
         course.setInstructorName(req.getInstructorName());
         course.setPrice(req.getPrice());
