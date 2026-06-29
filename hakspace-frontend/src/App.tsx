@@ -6,6 +6,7 @@ import LoginPage from './pages/public/LoginPage'
 import DashboardPage from './pages/admin/DashboardPage'
 import LeadsPage from './pages/admin/LeadsPage'
 import AdminCoursesPage from './pages/admin/AdminCoursesPage'
+import AdminBlacklistPage from './pages/admin/AdminBlacklistPage'
 import VerifyCertificatePage from './pages/public/VerifyCertificatePage'
 import WhatsAppButton from './components/WhatsAppButton'
 import AdminLayout from './components/AdminLayout'
@@ -22,6 +23,7 @@ function App() {
         <Route path="/admin/dashboard" element={<AdminLayout><DashboardPage /></AdminLayout>} />
         <Route path="/admin/courses" element={<AdminLayout><AdminCoursesPage /></AdminLayout>} />
         <Route path="/admin/leads" element={<AdminLayout><LeadsPage /></AdminLayout>} />
+        <Route path="/admin/blacklist" element={<AdminLayout><AdminBlacklistPage /></AdminLayout>} />
       </Routes>
       <WhatsAppButton />
     </>

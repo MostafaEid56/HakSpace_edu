@@ -55,24 +55,24 @@ public class EnrollmentService {
             boolean cancelling = (oldStatus == LeadStatus.ENROLLED && newStatus != LeadStatus.ENROLLED);
 
             if (approving) {
-                int updated = groupRepo.incrementStudentCount(groupId);
-                if (updated == 0) {
-                    throw new RuntimeException("enrollment.group.full");
-                }
-
-                // Find or create User representing the student
-                User student = userRepo.findByEmail(enrollment.getEmail())
+                // Find or create User representing the student using their phone number as the unique identifier
+                User student = userRepo.findByEmail(enrollment.getPhone())
                         .orElseGet(() -> {
                             User newUser = new User();
-                            newUser.setEmail(enrollment.getEmail());
+                            newUser.setEmail(enrollment.getPhone()); // Saving phone in the email field to ensure uniqueness by phone
                             newUser.setFullName(enrollment.getFullName());
                             newUser.setPassword(passwordEncoder.encode("123456")); // default password
                             newUser.setRole(User.Role.USER);
                             return userRepo.save(newUser);
                         });
 
-                // Verify duplicate enrollment
+                // Verify duplicate enrollment before incrementing count
                 if (!studentCourseRepo.existsByStudentIdAndCourseId(student.getId(), enrollment.getCourse().getId())) {
+                    int updated = groupRepo.incrementStudentCount(groupId);
+                    if (updated == 0) {
+                        throw new RuntimeException("enrollment.group.full");
+                    }
+
                     StudentCourse studentCourse = new StudentCourse();
                     studentCourse.setStudent(student);
                     studentCourse.setCourse(enrollment.getCourse());
@@ -80,6 +80,9 @@ public class EnrollmentService {
                     studentCourse.setEnrollmentDate(LocalDateTime.now());
                     studentCourse.setCompletionStatus(StudentCourse.CompletionStatus.IN_PROGRESS);
                     studentCourseRepo.save(studentCourse);
+                } else {
+                    // Silently ignore or throw exception if already enrolled,
+                    // but we MUST NOT increment the student count
                 }
             } else if (cancelling) {
                 groupRepo.decrementStudentCount(groupId);

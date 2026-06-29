@@ -1,6 +1,7 @@
 package com.hakspace.repository;
 
 import com.hakspace.model.StudentCourse;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,5 +12,7 @@ import java.util.Optional;
 public interface StudentCourseRepository extends JpaRepository<StudentCourse, Long> {
     boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
     Optional<StudentCourse> findByStudentIdAndCourseId(Long studentId, Long courseId);
+
+    @EntityGraph(attributePaths = {"student", "course", "group", "certificate"})
     List<StudentCourse> findByCourseId(Long courseId);
 }

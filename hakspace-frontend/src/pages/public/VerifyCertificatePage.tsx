@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { apiClient } from '../../api/client'
 import { toast } from 'react-toastify'
-import { Award, CheckCircle, Search, ArrowLeft, Printer, ShieldCheck } from 'lucide-react'
+import { Award, CheckCircle, Search, ArrowLeft, Printer, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Navbar from '../../components/Navbar'
 
@@ -13,6 +13,11 @@ interface Certificate {
   issueDate: string
 }
 
+interface BlockedCertificate {
+  blocked: true
+  reason: string
+}
+
 export default function VerifyCertificatePage() {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -21,6 +26,7 @@ export default function VerifyCertificatePage() {
   const [inputVal, setInputVal] = useState('')
   const [loading, setLoading] = useState(false)
   const [certificate, setCertificate] = useState<Certificate | null>(null)
+  const [blocked, setBlocked] = useState<BlockedCertificate | null>(null)
   const [errorMsg, setErrorMsg] = useState('')
 
   const urlId = searchParams.get('id')
@@ -37,9 +43,14 @@ export default function VerifyCertificatePage() {
     setLoading(true)
     setErrorMsg('')
     setCertificate(null)
+    setBlocked(null)
     try {
       const res = await apiClient.get(`/api/certificates/${id.trim()}`)
-      setCertificate(res.data)
+      if (res.data.blocked) {
+        setBlocked(res.data)
+      } else {
+        setCertificate(res.data)
+      }
     } catch (err: any) {
       setErrorMsg(t('certificate.not_found'))
       toast.error(t('certificate.not_found'))
@@ -121,6 +132,36 @@ export default function VerifyCertificatePage() {
             </p>
           )}
         </div>
+
+        {/* Blocked Certificate Message */}
+        {blocked && (
+          <div className="space-y-6">
+            <div className="bg-red-950/20 border-2 border-red-800/50 rounded-2xl p-8 md:p-12 shadow-2xl text-center relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-red-500/10 rounded-full blur-3xl" />
+              <div className="relative z-10 space-y-6">
+                <div className="w-20 h-20 bg-red-900/30 rounded-full flex items-center justify-center mx-auto border-2 border-red-800/30">
+                  <ShieldAlert size={40} className="text-red-500" />
+                </div>
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-red-500 mb-2">
+                    {t('certificate.blocked_title')}
+                  </h2>
+                  <p className="text-zinc-400 text-lg">
+                    {t('certificate.blocked_message')}
+                  </p>
+                </div>
+                <div className="max-w-md mx-auto bg-black/30 border border-red-900/30 rounded-xl p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-red-400 mb-1">
+                    {t('certificate.blocked_reason')}
+                  </p>
+                  <p className="text-zinc-300 text-base font-semibold">
+                    {blocked.reason}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Certificate Display Area */}
         {certificate && (

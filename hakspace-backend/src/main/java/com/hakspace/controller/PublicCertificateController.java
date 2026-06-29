@@ -1,5 +1,6 @@
 package com.hakspace.controller;
 
+import com.hakspace.dto.CertificateBlockedResponse;
 import com.hakspace.dto.CertificateResponse;
 import com.hakspace.service.CertificateService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,8 @@ public class PublicCertificateController {
     private final CertificateService certificateService;
 
     @GetMapping("/{certificateId}")
-    public ResponseEntity<CertificateResponse> verifyCertificate(@PathVariable String certificateId) {
-        return ResponseEntity.ok(certificateService.verifyCertificate(certificateId));
+    public ResponseEntity<?> verifyCertificate(@PathVariable String certificateId) {
+        Object result = certificateService.verifyCertificate(certificateId);
+        return ResponseEntity.ok(result);
     }
 }
